@@ -1,0 +1,6 @@
+https://github.com/summanlp/textrank/archive/master.zip
+starlette
+jinja2
+uvicorn
+aiofiles 
+python-multipart

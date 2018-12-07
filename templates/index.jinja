@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+  <title>Demo Page for TextRank Algorithm</title>
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.css">
+
+  <!-- Javascript
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.2.22/cytoscape.js"></script>
+  
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="icon" type="image/png" href="static/images/favicon.png">
+  <style>
+      #cy {
+          height: 500px;
+          top: 0px;
+          left: 0px;
+      }
+      #tip {
+        margin-top: 100px; 
+      }
+  </style>
+
+</head>
+<body>
+  <!-- Primary Page Layout
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <div class="container">
+    <div class="row" style="margin-top: 10%">
+      <div class="two-third column"><h1>Simple TextRank Demo</h1></div>
+    </div>
+    <div class="row">
+      <div class="eight columns" style="padding-top: 2%">
+        <h4>Text Source</h4>
+        <form action="/" method="POST">
+            <textarea class="u-full-width" placeholder="Paste article here..." id="exampleMessage" name="text" style="height:200px">{{ text }}</textarea>
+            # of sentences to highlight: <input class="u-full-width" type="text" name="n" value="{{ n }}">
+            <input class="button-primary" type="submit" value="Submit">
+        </form>
+      </div>
+      <div class="four columns" style="padding-top: 2%">
+        <h4>Statistics</h4>
+        <ul>
+        {% for entry in stats %}
+          <li>{{ entry[0] }}: {{ entry[1] }}</li>
+        {% endfor %}
+        </ul>
+      </div>
+    </div>
+    <div class="row">
+      <div class="twelve columns"style="padding-top: 2%">
+          <h4>Results</h4>
+          {% for sentences in paragraphs %}
+          <p>
+            {% for sent in sentences %}
+              <span style="background-color: rgba(255, 255, 75, {{ sent.alpha }});">{{ sent.text }}</span>
+            {% endfor %}
+          </p>
+          {% endfor %}
+      </div>
+    </div>
+    <div class="row" id="network">   
+      <div class="nine columns" style="padding-top: 2%">
+          <h4>Network</h4> 
+          <div id="cy"></div>
+      </div>
+      <div class="three columns" id="tip">
+        Click on a node to show details.
+      </div>      
+    </div>
+    <div class="row">
+      <div class="twelve columns" style="padding-top: 2%; padding-bottom: 5%;">
+        <b>Built by CeShine Lee, based on TextRank implementation <a href="https://github.com/summanlp/textrank">summanlp/textrank</a>.</b>
+      </div>
+    </div>    
+  </div>
+{% if text %}
+<script>
+  var cy = cytoscape({
+    container: document.getElementById('cy'), // container to render in
+
+    elements: [ // list of graph elements to start with
+      {% for i in range(n_nodes) %}
+      { // node a
+        data: { 
+          id: 'n{{ i }}', 
+          label: 'P {{ node_mapping[i][1] + 1 }} S {{ node_mapping[i][2] + 1}}',
+          paragraph: '{{ node_mapping[i][1] + 1 }}',
+          sentence: '{{ node_mapping[i][2] + 1}}',
+          score: '{{ node_mapping[i][3] }}',
+          name: '{{node_mapping[i][0]}}'
+        }
+      },
+      {% endfor %}
+      {% for edge in edges %}
+      { // edge ab
+        data: { id: 'n{{edge[0]}}_n{{edge[1]}}', source: 'n{{edge[0]}}', target: 'n{{edge[1]}}', weight: '{{edge[2]}}' }
+      },
+      {% endfor %}
+    ],
+
+    style: [ // the stylesheet for the graph
+      {
+        selector: 'node',
+        style: {
+          'background-color': '#666',
+          'label': 'data(label)'
+        }
+      },
+
+      {
+        selector: 'edge',
+        style: {
+          'width': 'data(weight)',
+          'line-color': '#ccc'
+        }
+      }
+    ],
+
+    layout: {
+      name: 'concentric',
+      fit: true, // whether to fit the viewport to the graph
+      padding: 10, // the padding on fit
+      startAngle: 3 / 2 * Math.PI, // where nodes start in radians
+      sweep: undefined, // how many radians should be between the first and last node (defaults to full circle)
+      clockwise: true, // whether the layout should go clockwise (true) or counterclockwise/anticlockwise (false)
+      equidistant: false, // whether levels have an equal radial distance betwen them, may cause bounding box overflow
+      minNodeSpacing: 50, // min spacing between outside of nodes (used for radius adjustment)
+      boundingBox: undefined, // constrain layout bounds; { x1, y1, x2, y2 } or { x1, y1, w, h }
+      avoidOverlap: true, // prevents node overlap, may overflow boundingBox if not enough space
+      nodeDimensionsIncludeLabels: false, // Excludes the label when calculating node bounding boxes for the layout algorithm
+      height: undefined, // height of layout area (overrides container height)
+      width: undefined, // width of layout area (overrides container width)
+      spacingFactor: 2, // Applies a multiplicative factor (>0) to expand or compress the overall area that the nodes take up      
+    }
+  });
+  cy.zoomingEnabled(false) 
+
+  cy.on('tap', 'node', function (evt) {
+      console.log(evt.target.data());
+      var data = evt.target.data();
+      document.getElementById('tip').innerHTML = (
+        "<b>Paragraph " + data['paragraph'] + " Sentence "+ data['sentence'] + "</b><br/>" +
+        "Score: " + data['score'] + "<br/>" + 
+        data["name"]
+      );
+  });
+</script>
+{% endif %}
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+</body>
+</html>
+
