@@ -107,7 +107,7 @@
           paragraph: '{{ node_mapping[i][1] + 1 }}',
           sentence: '{{ node_mapping[i][2] + 1}}',
           score: '{{ node_mapping[i][3] }}',
-          name: '{{node_mapping[i][0]}}'
+          name: '{{node_mapping[i][0].strip() | safe}}'
         }
       },
       {% endfor %}

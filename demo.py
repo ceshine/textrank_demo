@@ -35,18 +35,22 @@ def add_alpha(sentences, n=3):
                 (transform(sent.score) - min_score) / span, 4)
 
 
-def find_node_in_texts(node_text, sentences):
+def find_node_in_texts(node_text, sentences, lang):
     """Only finds the first occurence"""
     for sent in sentences:
         if sent.token == node_text:
-            return [sent.text, sent.paragraph, sent.index, "%.4f" % sent.score]
+            if lang == "en":
+                return [sent.text, sent.paragraph, sent.index, "%.4f" % sent.score]
+            else:
+                return [sent.text + "<br/><br/>Tokens: " + sent.token,
+                        sent.paragraph, sent.index, "%.4f" % sent.score]
     return ["", -1, -1, -1]
 
 
-def reconstruct_graph(graph: summa.graph.Graph, sentences: List):
+def reconstruct_graph(graph: summa.graph.Graph, sentences: List, lang: str):
     raw_nodes = graph.nodes()
     node_mapping = {
-        i: find_node_in_texts(name, sentences)
+        i: find_node_in_texts(name, sentences, lang)
         for i, name in enumerate(raw_nodes)
     }
     edges = []
@@ -64,7 +68,11 @@ async def homepage(request):
     if request.method == "POST":
         values = await request.form()
         print("POST params:", values)
-        sentences, graph = summarize(values['text'])
+        sentences, graph, lang = summarize(values['text'])
+        print(lang)
+        if graph is None:
+            return HTMLResponse(sentences[0] + "\nDectected language: " + lang)
+        # print([sentence.token for sentence in sentences if sentence.token])
         try:
             add_alpha(sentences, int(values["n"]))
         except (ValueError, KeyError):
@@ -75,7 +83,7 @@ async def homepage(request):
         for i in range(n_paragraphs):
             paragraphs.append(
                 sorted([x for x in sentences if x.paragraph == i], key=lambda x: x.index))
-        node_mapping, edges = reconstruct_graph(graph, sentences)
+        node_mapping, edges = reconstruct_graph(graph, sentences, lang)
         content = template.render(
             paragraphs=paragraphs,
             text=values['text'],

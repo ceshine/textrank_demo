@@ -1,6 +1,8 @@
-https://github.com/summanlp/textrank/archive/master.zip
+https://github.com/ceshine/textrank/archive/master.zip
+opencc-python-reimplemented
 starlette
 jinja2
 uvicorn
 aiofiles 
 python-multipart
+langdetect
