@@ -1,17 +1,15 @@
 import os
+from typing import Dict, Any
+from functools import lru_cache
 
 from aip import AipNlp
 from opencc import OpenCC
 
 CC = OpenCC("t2s")
-APP_ID = os.environ["BAIDU_APP_ID"]
-API_KEY = os.environ["BAIDU_APP_KEY"]
-SECRET_KEY = os.environ["BAIDU_SECRET_KEY"]
-
 
 TAG_MAPPING = {
     "PER": "noun",
-    "TIME": "noun",
+    "TIME": "time",
     "ORG": "noun",
     "LOC": "noun",
     "w": "punc",   # 標點符號
@@ -19,9 +17,9 @@ TAG_MAPPING = {
     "ad": "adj",
     "c": "conj",   # 連接詞
     "n": "noun",
-    "f": "noun",   # 方位名词
+    "f": "dir",   # 方位名词
     "s": "noun",   # 处所名词
-    "t": "noun",   # 時間名词
+    "t": "time",   # 時間名词
     "nr": "noun",  # 人名
     "ns": "noun",  # 地名
     "nt": "noun",  # 機構團體名
@@ -37,11 +35,14 @@ TAG_MAPPING = {
     "an": "noun",  # 名形詞
     "r": "pron",   # 代詞
     "p": "prep",   # 介詞
-    "xc": "func"   # 其他虚词
+    "xc": "func"  # 其他虚词
 }
 
 
 def get_client():
+    APP_ID = os.environ["BAIDU_APP_ID"]
+    API_KEY = os.environ["BAIDU_APP_KEY"]
+    SECRET_KEY = os.environ["BAIDU_SECRET_KEY"]
     return AipNlp(APP_ID, API_KEY, SECRET_KEY)
 
 
@@ -54,7 +55,8 @@ def convert_ner_tags(ner_items):
     return ner_items
 
 
-def ner_tags(text, verbose=False):
+@lru_cache(maxsize=32)
+def ner_tags(text, verbose=False) -> Dict[str, Any]:
     res = get_client().lexer(CC.convert(text))
     if verbose:
         print([
@@ -62,3 +64,13 @@ def ner_tags(text, verbose=False):
             for x in res["items"]
         ])
     return convert_ner_tags(res["items"])
+
+
+def analyze_syntax(text, verbose=False):
+    res = get_client().depParser(text)
+    if verbose:
+        print([
+            (x["word"], x["postag"])
+            for x in res["items"]
+        ])
+    return res["items"]

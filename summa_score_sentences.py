@@ -37,14 +37,6 @@ def summarize(text, additional_stopwords=None):
         [sentence.token for sentence in sentences if sentence.token])
     _set_graph_edge_weights(graph)
 
-    # # FOR DEBUG:
-    # nodes = graph.nodes()
-    # for node1 in nodes:
-    #     for node2 in nodes:
-    #         if node1 is not node2:
-    #             print(node1[:10], ",", node2[:10],
-    #                   graph.edge_weight((node1, node2)))
-
     # Remove all nodes with all edges weights equal to zero.
     _remove_unreachable_nodes(graph)
 
