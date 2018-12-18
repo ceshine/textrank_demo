@@ -76,6 +76,12 @@
           <li>{{ entry[0] }}: {{ entry[1] | safe }}</li>
         {% endfor %}
         </ul>
+        <h4>Keywords</h4>
+        <ol>
+        {% for entry in keywords %}
+          <li>{{ entry }}</li>
+        {% endfor %}
+        </ol>
       </div>
     </div>
     <div class="row">

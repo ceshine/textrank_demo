@@ -130,21 +130,15 @@ async def homepage(request):
         keywords, lemma2words, word_graph, pagerank_scores = _keywords(
             values['text'])
         if lang == "en":
-            extra_info.append((
-                "Keywords",
-                "<ol><li>" + "</li><li>".join(
-                    key + " %.2f (%s)" % (score, ", ".join(lemma2words[key]))
-                    for score, key in keywords[:int(values["n_keywords"])]
-                ) + "</li></ol>"
-            ))
+            keyword_formatted = [
+                key + " %.2f (%s)" % (score, ", ".join(lemma2words[key]))
+                for score, key in keywords[:int(values["n_keywords"])]
+            ]
         else:
-            extra_info.append((
-                "Keywords",
-                "<ol><li>" + "</li><li>".join(
-                    key + " %.2f" % score
-                    for score, key in keywords[:int(values["n_keywords"])]
-                ) + "</li></ol>"
-            ))
+            keyword_formatted = [
+                key + " %.2f" % score
+                for score, key in keywords[:int(values["n_keywords"])]
+            ]
         if graph is None:
             return HTMLResponse(sentences[0] + "\nDectected language: " + lang)
         # print([sentence.token for sentence in sentences if sentence.token])
@@ -183,7 +177,8 @@ async def homepage(request):
                  max([float(x[3]) for x in node_mapping.values()])),
                 ("Min Node Score", "%.4f" %
                  min([float(x[3]) for x in node_mapping.values()]))
-            ] + extra_info
+            ],
+            keywords=keyword_formatted
         )
     else:
         content = template.render(text="", n_sentences=2, n_keywords=5)
