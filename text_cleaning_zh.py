@@ -4,6 +4,7 @@ from typing import List, Sequence, Dict, Any
 from summa.syntactic_unit import SyntacticUnit
 
 from baidunlp import ner_tags
+DEBUG = 1
 
 
 def insert_unit(target_list: List[SyntacticUnit], raw: List[str],
@@ -19,7 +20,7 @@ def insert_unit(target_list: List[SyntacticUnit], raw: List[str],
 
 
 def clean_text(text: str) -> str:
-    text = text.replace("\r\n", "\n")
+    text = text.replace("\r", "")
     text = re.sub(r"(\s)\1+", r"\1", text)
     return text
 
@@ -35,7 +36,7 @@ def clean_and_cut_words(text: str, pos_tags: Sequence = ("noun", "verb"),
     return cut_words(tokens, pos_tags, stopwords)
 
 
-def cut_words(tokens: List[Dict[str, Any]],  pos_tags: Sequence,
+def cut_words(tokens: List[Dict[str, Any]], pos_tags: Sequence,
               stopwords: Sequence) -> List[SyntacticUnit]:
     results: List[SyntacticUnit] = []
     paragraph_idx, word_idx = 0, 0
@@ -46,9 +47,12 @@ def cut_words(tokens: List[Dict[str, Any]],  pos_tags: Sequence,
             word_idx = 0
         else:
             # Usual token
+            if DEBUG:
+                print(token["item"], token["tag"], token.get("pos", ""))
             if token["tag"] in pos_tags and (token["item"] not in stopwords):
                 insert_unit(results, [token["item"]],
                             [token["item"]], paragraph_idx, word_idx)
+                word_idx += 1
     return results
 
 
@@ -67,7 +71,7 @@ def cut_sentences(tokens: List[Dict[str, Any]], sentence_delimiter: str,
     filtered: List[str] = []
     for token in tokens:
         if token["item"] in sentence_delimiter and raw_text:
-                # End of a sentence
+            # End of a sentence
             raw_text.append(token["item"])
             insert_unit(results, raw_text, filtered,
                         paragraph_idx, sentence_idx)
@@ -76,7 +80,7 @@ def cut_sentences(tokens: List[Dict[str, Any]], sentence_delimiter: str,
         elif token["item"] == "\n":
             # Linebreak marks the end of a paragraph
             if raw_text:
-                    # is not right after a setence delimiter
+                # is not right after a setence delimiter
                 insert_unit(results, raw_text, filtered,
                             paragraph_idx, sentence_idx)
                 raw_text, filtered = [], []

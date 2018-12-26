@@ -6,3 +6,4 @@ uvicorn
 aiofiles 
 python-multipart
 langdetect
+nagisa

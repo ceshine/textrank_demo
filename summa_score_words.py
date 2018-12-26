@@ -11,7 +11,8 @@ from summa.keywords import (
 )
 import summa.graph
 
-from text_cleaning_zh import clean_and_cut_words
+from text_cleaning_zh import clean_and_cut_words as zh_clean_and_cut_words
+from text_cleaning_ja import clean_and_cut_words as ja_clean_and_cut_words
 
 
 def _extract_tokens(lemmas, scores) -> List[Tuple[float, str]]:
@@ -35,7 +36,11 @@ def keywords(
             additional_stopwords=additional_stopwords)
         split_text = list(_tokenize_by_word(text))
     elif lang == "zh" or lang == "ko":  # zh-Hant sometimes got misclassified into ko
-        tokens = clean_and_cut_words(text)
+        tokens = zh_clean_and_cut_words(text)
+        split_text = [x.text for x in tokens]
+        tokens = {x.text: x for x in tokens}
+    elif lang == "ja":
+        tokens = ja_clean_and_cut_words(text)
         split_text = [x.text for x in tokens]
         tokens = {x.text: x for x in tokens}
     else:

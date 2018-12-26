@@ -7,7 +7,8 @@ from summa.commons import build_graph as _build_graph
 from summa.commons import remove_unreachable_nodes as _remove_unreachable_nodes
 from summa.summarizer import _set_graph_edge_weights, _add_scores_to_sentences
 
-from text_cleaning_zh import clean_and_cut_sentences as _clean_and_cut_sentences
+from text_cleaning_zh import clean_and_cut_sentences as zh_clean_and_cut_sentences
+from text_cleaning_ja import clean_and_cut_sentences as ja_clean_and_cut_sentences
 
 
 def summarize(text, additional_stopwords=None):
@@ -27,9 +28,11 @@ def summarize(text, additional_stopwords=None):
                     sent.paragraph = i
                 sentences += tmp
     elif lang == "zh" or lang == "ko":  # zh-Hant sometimes got misclassified into ko
-        sentences = _clean_and_cut_sentences(text)
+        sentences = zh_clean_and_cut_sentences(text)
+    elif lang == "ja":
+        sentences = ja_clean_and_cut_sentences(text)
     else:
-        return ["Language not suppored! (supported languages: en, zh)"], None, lang
+        return ["Language not suppored! (supported languages: en, zh, ja)"], None, lang
 
     # print([sentence.token for sentence in sentences if sentence.token])
     # Creates the graph and calculates the similarity coefficient for every pair of nodes.

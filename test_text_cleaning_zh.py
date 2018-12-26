@@ -183,7 +183,7 @@ def test_cut_words_n(sample_tagged_items):
                         ("noun",), ("是", "有"))
     assert len(results) == 7
     # third word
-    assert results[2].index == 0
+    assert results[2].index == 2
     assert results[2].paragraph == 0
     assert results[2].text == "创办人"
     assert results[2].token == "创办人"
