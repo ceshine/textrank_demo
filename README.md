@@ -32,7 +32,7 @@ From a quick glance at the source code, it seems to be using Pattern (if availab
 
 Demo: **[A static snapshot](https://publicb2.ceshine.net/file/ceshine-public/misc/textrank_demo_zh.html) with an example from a news article.**
 
-This project uses [Baidu's free NLP API](https://cloud.baidu.com/product/nlp) to do word segmentation and POS tagging. You need to create an account there and set the following environment variables:
+This project uses [Baidu's free NLP API](https://cloud.baidu.com/product/nlp) to do word segmentation and POS tagging. You need to create an account there, install the Python SDK, and set the following environment variables:
 
 * BAIDU_APP_ID
 * BAIDU_APP_KEY
@@ -41,6 +41,13 @@ This project uses [Baidu's free NLP API](https://cloud.baidu.com/product/nlp) to
 You can of course use other offline NLP tools instead. Please refer to `test_text_cleaning_zh.py` for information on the data structures expected by the main function.
 
 Traditional Chinese will be converted to Simplified Chinese due to the restrictions of Baidu API.
+
+### Japanese
+
+Demo: **[A static snapshot](https://publicb2.ceshine.net/file/ceshine-public/misc/textrank_demo_ja.html) with an example from a news article.**
+
+It uses [nagisa](https://github.com/taishi-i/nagisa) to do word segmentation and POS tagging. There are some Japanese peculiarities that make it a bit tricky, and I had to add a few stopwords go get more reasonable results for demo. Obviously there is much room of improvement here.
+
 
 ## Snapshots
 
@@ -59,3 +66,11 @@ Traditional Chinese will be converted to Simplified Chinese due to the restricti
 ![sentence network](imgs/snapshot_zh_sentence_network.png)
 
 ![word network](imgs/snapshot_zh_word_network.png)
+
+### Japanese
+
+![highlights](imgs/snapshot_ja_texts.png)
+
+![sentence network](imgs/snapshot_ja_sentence_network.png)
+
+![word network](imgs/snapshot_ja_word_network.png)
