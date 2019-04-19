@@ -4,16 +4,18 @@ from typing import List, Dict
 from starlette.applications import Starlette
 from starlette.responses import HTMLResponse
 from starlette.staticfiles import StaticFiles
+from starlette.templating import Jinja2Templates
 # from summa.keywords import keywords as _keywords
 import uvicorn
 import summa.graph
 
-from summa_score_sentences import summarize
+from summa_score_sentences_use import summarize
 from summa_score_words import keywords as _keywords
 
 
-app = Starlette(debug=True, template_directory='templates')
+app = Starlette(debug=True)
 app.mount('/static', StaticFiles(directory='static'), name='static')
+templates = Jinja2Templates(directory='templates')
 
 
 def add_alpha(sentences, n=3):
@@ -70,7 +72,6 @@ def reconstruct_graph(graph: summa.graph.Graph, sentences: List, lang: str):
 def transform_word_scores(pagerank_scores: Dict[str, float]) -> Dict[str, float]:
     def transform(score):
         return (score * 10) ** 1.5
-
     SCALE = 20
     scores = [transform(x) for x in pagerank_scores.values()]
     new_scores = {}
@@ -120,7 +121,6 @@ def reconstruct_word_graph(graph: summa.graph.Graph, pagerank_scores: Dict[str, 
 
 @app.route('/', methods=["GET", "POST"])
 async def homepage(request):
-    template = app.get_template('index.jinja')
     if request.method == "POST":
         values = await request.form()
         print("POST params:", values)
@@ -155,34 +155,38 @@ async def homepage(request):
         node_mapping, edges = reconstruct_graph(graph, sentences, lang)
         word_node_mapping, word_edges = reconstruct_word_graph(
             word_graph, pagerank_scores, top_n=int(values["n_keywords"])*5)
-        content = template.render(
-            paragraphs=paragraphs,
-            text=values['text'],
-            n_sentences=values["n_sentences"],
-            n_keywords=values["n_keywords"],
-            word_edges=word_edges,
-            edges=edges,
-            n_nodes=len(node_mapping),
-            n_word_nodes=len(word_node_mapping),
-            node_mapping=node_mapping,
-            word_node_mapping=word_node_mapping,
-            stats=[
-                ("# of Sentence Nodes", len(node_mapping)),
-                ("# of Sentence Edges", len(edges)),
-                ("Max Edge Weight", "%.4f" %
-                 max([float(x[2]) for x in edges])),
-                ("Min Edge Weight", "%.4f" %
-                 min([float(x[2]) for x in edges])),
-                ("Max Node Score", "%.4f" %
-                 max([float(x[3]) for x in node_mapping.values()])),
-                ("Min Node Score", "%.4f" %
-                 min([float(x[3]) for x in node_mapping.values()]))
-            ],
-            keywords=keyword_formatted
+        response = templates.TemplateResponse(
+            'index.jinja',
+            dict(
+                request=request,
+                paragraphs=paragraphs,
+                text=values['text'],
+                n_sentences=values["n_sentences"],
+                n_keywords=values["n_keywords"],
+                word_edges=word_edges,
+                edges=edges,
+                n_nodes=len(node_mapping),
+                n_word_nodes=len(word_node_mapping),
+                node_mapping=node_mapping,
+                word_node_mapping=word_node_mapping,
+                stats=[
+                    ("# of Sentence Nodes", len(node_mapping)),
+                    ("# of Sentence Edges", len(edges)),
+                    ("Max Edge Weight", "%.4f" %
+                     max([float(x[2]) for x in edges])),
+                    ("Min Edge Weight", "%.4f" %
+                     min([float(x[2]) for x in edges])),
+                    ("Max Node Score", "%.4f" %
+                     max([float(x[3]) for x in node_mapping.values()])),
+                    ("Min Node Score", "%.4f" %
+                     min([float(x[3]) for x in node_mapping.values()]))
+                ],
+                keywords=keyword_formatted)
         )
     else:
-        content = template.render(text="", n_sentences=2, n_keywords=5)
-    return HTMLResponse(content)
+        response = templates.TemplateResponse(
+            'index.jinja', dict(request=request, text="", n_sentences=2, n_keywords=5))
+    return response
 
 if __name__ == '__main__':
     uvicorn.run(app, host='0.0.0.0', port=8000)
