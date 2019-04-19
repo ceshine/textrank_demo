@@ -1,5 +1,4 @@
-from math import log10
-
+"""Using similarity function from the original TextRank algorithm."""
 from langdetect import detect
 from summa.pagerank_weighted import pagerank_weighted_scipy as _pagerank
 from summa.preprocessing.textcleaner import clean_text_by_sentences as _clean_text_by_sentences
@@ -7,8 +6,18 @@ from summa.commons import build_graph as _build_graph
 from summa.commons import remove_unreachable_nodes as _remove_unreachable_nodes
 from summa.summarizer import _set_graph_edge_weights, _add_scores_to_sentences
 
-from text_cleaning_zh import clean_and_cut_sentences as zh_clean_and_cut_sentences
-from text_cleaning_ja import clean_and_cut_sentences as ja_clean_and_cut_sentences
+# Optional Dependencies
+try:
+    from text_cleaning_zh import clean_and_cut_sentences as zh_clean_and_cut_sentences
+    ZH_SUPPORT = True
+except ImportError:
+    ZH_SUPPORT = False
+
+try:
+    from text_cleaning_ja import clean_and_cut_sentences as ja_clean_and_cut_sentences
+    JA_SUPPORT = True
+except ImportError:
+    JA_SUPPORT = False
 
 
 def summarize(text, additional_stopwords=None):
@@ -28,8 +37,12 @@ def summarize(text, additional_stopwords=None):
                     sent.paragraph = i
                 sentences += tmp
     elif lang == "zh" or lang == "ko":  # zh-Hant sometimes got misclassified into ko
+        if ZH_SUPPORT:
+            raise ImportError("Missing dependencies for Chinese support.")
         sentences = zh_clean_and_cut_sentences(text)
     elif lang == "ja":
+        if JA_SUPPORT:
+            raise ImportError("Missing dependencies for Japanese support.")
         sentences = ja_clean_and_cut_sentences(text)
     else:
         return ["Language not suppored! (supported languages: en, zh, ja)"], None, lang
