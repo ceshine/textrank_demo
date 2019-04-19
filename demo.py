@@ -9,7 +9,7 @@ from starlette.templating import Jinja2Templates
 import uvicorn
 import summa.graph
 
-from summa_score_sentences_use import summarize
+from summa_score_sentences import summarize
 from summa_score_words import keywords as _keywords
 
 
