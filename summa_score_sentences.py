@@ -37,11 +37,11 @@ def summarize(text, additional_stopwords=None):
                     sent.paragraph = i
                 sentences += tmp
     elif lang == "zh" or lang == "ko":  # zh-Hant sometimes got misclassified into ko
-        if ZH_SUPPORT:
+        if not ZH_SUPPORT:
             raise ImportError("Missing dependencies for Chinese support.")
         sentences = zh_clean_and_cut_sentences(text)
     elif lang == "ja":
-        if JA_SUPPORT:
+        if not JA_SUPPORT:
             raise ImportError("Missing dependencies for Japanese support.")
         sentences = ja_clean_and_cut_sentences(text)
     else:
@@ -73,12 +73,13 @@ def summarize(text, additional_stopwords=None):
 
 
 if __name__ == "__main__":
-    res, graph = summarize("""Of all of President Trump’s former associates who have come under scrutiny in the special counsel’s Russia investigation, his former personal lawyer, Michael D. Cohen, has undertaken perhaps the most surprising and risky legal strategy.
+    res, _, lang = summarize("""Of all of President Trump’s former associates who have come under scrutiny in the special counsel’s Russia investigation, his former personal lawyer, Michael D. Cohen, has undertaken perhaps the most surprising and risky legal strategy.
 
 Mr. Cohen has twice pleaded guilty in federal court in Manhattan to a litany of crimes, and he has volunteered information to the special counsel and other agencies investigating Mr. Trump and his inner circle. He did all this without first obtaining a traditional, ironclad deal under which the government would commit to seeking leniency on Mr. Cohen’s behalf when he is sentenced on Dec. 12.
 
 Mr. Cohen has concluded that his life has been utterly destroyed by his relationship with Mr. Trump and his own actions, and to begin anew he needed to speed up the legal process by quickly confessing his crimes and serving any sentence he receives, according to his friends and associates, and analysis of documents in the case.
 
 Cohen, has undertaken perhaps the most surprising and risky legal strategy.""")
+    assert lang == "en"
     for row in res:
         print(row)
