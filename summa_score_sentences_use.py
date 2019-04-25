@@ -15,6 +15,12 @@ from summa.summarizer import _set_graph_edge_weights, _add_scores_to_sentences
 
 # Optional Dependencies
 try:
+    # required by "xling" model
+    import tf_sentencepiece
+except ImportError:
+    pass
+
+try:
     from text_cleaning_zh import clean_and_cut_sentences as zh_clean_and_cut_sentences
     ZH_SUPPORT = True
 except ImportError:
@@ -28,30 +34,36 @@ except ImportError:
 
 
 os.environ["TFHUB_CACHE_DIR"] = "/mnt/SSD_Data/tf_hub_cache/"
-os.environ["http_proxy"] = "http://127.0.0.1:11233"
-os.environ["https_proxy"] = "http://127.0.0.1:11233"
+os.environ["http_proxy"] = "http://192.168.199.10:11233"
+os.environ["https_proxy"] = "http://192.168.199.10:11233"
 
+tf.logging.set_verbosity(logging.WARNING)
 
 MODELS = {
+    "xling": "https://tfhub.dev/google/universal-sentence-encoder-xling-many/1",
     "large": "https://tfhub.dev/google/universal-sentence-encoder-large/3",
     # base does not work with GPU
     "base": "https://tfhub.dev/google/universal-sentence-encoder/2"
 }
 
-# Define graph
-tf.logging.set_verbosity(logging.WARNING)
-sentence_input = tf.placeholder(tf.string, shape=(None))
-encoder = hub.Module(MODELS[os.environ.get("ENCODER", "large")])
-# For evaluation we use exactly normalized rather than
-# approximately normalized.
-SENTENCE_EMB = tf.nn.l2_normalize(encoder(sentence_input), axis=1)
+
+def get_model(model_name="large"):
+    tf.reset_default_graph()
+    # Define graph
+    sentence_input = tf.placeholder(tf.string, shape=(None))
+    encoder = hub.Module(MODELS[model_name])
+    # For evaluation we use exactly normalized rather than
+    # approximately normalized.
+    sentence_emb = tf.nn.l2_normalize(encoder(sentence_input), axis=1)
+    return {"sentence_input": sentence_input, "sentence_emb": sentence_emb}
 
 
 def cosine_similarity(similarity_matrix, id_1, id_2):
     return similarity_matrix[id_1, id_2]
 
 
-def attach_setence_embeddings(sentences, batch_size=32):
+def attach_setence_embeddings(sentences, model_name, batch_size=32):
+    model = get_model(model_name)
     # remove extremely short sentences
     sentence = [x for x in sentences if len(x.text) > 5]
     sentence_embeddings = []
@@ -61,10 +73,11 @@ def attach_setence_embeddings(sentences, batch_size=32):
         for i in range(0, len(sentences), batch_size):
             sentence_embeddings.append(
                 session.run(
-                    SENTENCE_EMB,
+                    model["sentence_emb"],
                     feed_dict={
-                        sentence_input: [
-                            x.text for x in sentences[(i*batch_size):((i+1)*batch_size)]]
+                        model["sentence_input"]: [
+                            x.text for x in sentences[i:(i+batch_size)]
+                        ]
                     }
                 )
             )
@@ -79,7 +92,7 @@ def attach_setence_embeddings(sentences, batch_size=32):
     return sentences, similarities
 
 
-def summarize(text, additional_stopwords=None):
+def summarize(text, model_name="large", additional_stopwords=None):
     if not isinstance(text, str):
         raise ValueError("Text parameter must be a Unicode object (str)!")
     lang = detect(text)[:2]
@@ -104,7 +117,7 @@ def summarize(text, additional_stopwords=None):
     # print([sentence.token for sentence in sentences if sentence.token])
     # Creates the graph and calculates the similarity coefficient for every pair of nodes.
     sentences, similarities = attach_setence_embeddings(
-        sentences, batch_size=32)
+        sentences, batch_size=32, model_name=model_name)
     graph = _build_graph(list(range(len(sentences))))
     _set_graph_edge_weights(graph, partial(cosine_similarity, similarities))
 

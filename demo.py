@@ -124,7 +124,11 @@ async def homepage(request):
     if request.method == "POST":
         values = await request.form()
         print("POST params:", values)
-        sentences, graph, lang = summarize(values['text'])
+        if values['metricInput'].startswith("use-"):
+            sentences, graph, lang = summarize(
+                values['text'], model_name=values['metricInput'][4:])
+        else:
+            raise NotImplementedError
         print(lang)
         extra_info = []
         keywords, lemma2words, word_graph, pagerank_scores = _keywords(
