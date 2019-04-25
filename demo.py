@@ -9,7 +9,8 @@ from starlette.templating import Jinja2Templates
 import uvicorn
 import summa.graph
 
-from summa_score_sentences import summarize
+from summa_score_sentences_use import summarize as summarize_use
+from summa_score_sentences import summarize as summarize_textrank
 from summa_score_words import keywords as _keywords
 
 
@@ -124,7 +125,12 @@ async def homepage(request):
     if request.method == "POST":
         values = await request.form()
         print("POST params:", values)
-        sentences, graph, lang = summarize(values['text'])
+        if values['metricInput'].startswith("use-"):
+            sentences, graph, lang = summarize_use(
+                values['text'], model_name=values['metricInput'][4:])
+        else:
+            sentences, graph, lang = summarize_textrank(
+                values['text'])
         print(lang)
         extra_info = []
         keywords, lemma2words, word_graph, pagerank_scores = _keywords(
@@ -163,6 +169,7 @@ async def homepage(request):
                 text=values['text'],
                 n_sentences=values["n_sentences"],
                 n_keywords=values["n_keywords"],
+                metricInput=values["metricInput"],
                 word_edges=word_edges,
                 edges=edges,
                 n_nodes=len(node_mapping),
@@ -185,7 +192,7 @@ async def homepage(request):
         )
     else:
         response = templates.TemplateResponse(
-            'index.jinja', dict(request=request, text="", n_sentences=2, n_keywords=5))
+            'index.jinja', dict(request=request, text="", n_sentences=2, n_keywords=5, metricInput="textrank"))
     return response
 
 if __name__ == '__main__':

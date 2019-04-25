@@ -1,9 +1,12 @@
-https://github.com/ceshine/textrank/archive/master.zip
+https://github.com/ceshine/textrank/archive/20190425.zip
 opencc-python-reimplemented
-starlette
+starlette==0.11.4
 jinja2
 uvicorn
-aiofiles 
+aiofiles==0.4.0
 python-multipart
 langdetect
+tensorflow==1.13.1
+tensorflow-hub==0.4.0
+tf-sentencepiece
 nagisa

@@ -59,10 +59,19 @@
         <form action="/" method="POST">
             <textarea class="u-full-width" placeholder="Paste article here..." id="exampleMessage" name="text" style="height:400px">{{ text }}</textarea>
             <div class="row">
-              <div class="six columns">
+              <div class="five columns">
+                <label for="metricInput">Similarity Metric</label>
+                <select class="u-full-width" name="metricInput" id="metricInput">
+                  <option value="textrank" {% if metricInput == 'textrank' %}selected{% endif %}>Textrank Original</option>
+                  <option value="use-base" {% if metricInput == 'use-base' %}selected{% endif %} >USE Base</option>
+                  <option value="use-large" {% if metricInput == 'use-large' %}selected{% endif %}>USE Large</option>
+                  <option value="use-xling" {% if metricInput == 'use-xling' %}selected{% endif %}>USE Xling</option>
+                </select>
+              </div>
+              <div class="four columns">
                 # of sentences to highlight: <input class="u-full-width" type="text" name="n_sentences" value="{{ n_sentences }}">
               </div>
-              <div class="six columns">
+              <div class="three columns">
                 # of keywords: <input class="u-full-width" type="text" name="n_keywords" value="{{ n_keywords }}">
               </div>
             </div>
