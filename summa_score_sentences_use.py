@@ -33,10 +33,6 @@ except ImportError:
     JA_SUPPORT = False
 
 
-os.environ["TFHUB_CACHE_DIR"] = "/mnt/SSD_Data/tf_hub_cache/"
-os.environ["http_proxy"] = "http://192.168.199.10:11233"
-os.environ["https_proxy"] = "http://192.168.199.10:11233"
-
 tf.logging.set_verbosity(logging.WARNING)
 
 MODELS = {
