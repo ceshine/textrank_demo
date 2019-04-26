@@ -1,7 +1,8 @@
 """Using similarity function from the original TextRank algorithm."""
 from langdetect import detect
 from summa.pagerank_weighted import pagerank_weighted_scipy as _pagerank
-from summa.preprocessing.textcleaner import clean_text_by_sentences as _clean_text_by_sentences
+# from summa.preprocessing.textcleaner import clean_text_by_sentences as _clean_text_by_sentences
+from text_cleaning_en import clean_text_by_sentences as en_clean_text_by_sentences
 from summa.commons import build_graph as _build_graph
 from summa.commons import remove_unreachable_nodes as _remove_unreachable_nodes
 from summa.summarizer import _set_graph_edge_weights, _add_scores_to_sentences
@@ -31,8 +32,10 @@ def summarize(text, additional_stopwords=None):
         for i, paragraph in enumerate(paragraphs):
             # Gets a list of processed sentences.
             if paragraph:
-                tmp = _clean_text_by_sentences(
-                    paragraph, "english", additional_stopwords)
+                tmp = en_clean_text_by_sentences(
+                    paragraph, additional_stopwords)
+                # tmp = _clean_text_by_sentences(
+                #     paragraph, "english")
                 for sent in tmp:
                     sent.paragraph = i
                 sentences += tmp
@@ -47,10 +50,9 @@ def summarize(text, additional_stopwords=None):
     else:
         return ["Language not suppored! (supported languages: en, zh, ja)"], None, lang
 
-    # print([sentence.token for sentence in sentences if sentence.token])
     # Creates the graph and calculates the similarity coefficient for every pair of nodes.
     graph = _build_graph(
-        [sentence.token for sentence in sentences if sentence.token])
+        [sentence.token for sentence in sentences if sentence.token and len(sentence.token) > 2])
     _set_graph_edge_weights(graph)
 
     # Remove all nodes with all edges weights equal to zero.
@@ -68,7 +70,6 @@ def summarize(text, additional_stopwords=None):
 
     # Sorts the sentences
     sentences.sort(key=lambda s: s.score, reverse=True)
-
     return sentences, graph, lang
 
 
@@ -82,4 +83,4 @@ Mr. Cohen has concluded that his life has been utterly destroyed by his relation
 Cohen, has undertaken perhaps the most surprising and risky legal strategy.""")
     assert lang == "en"
     for row in res:
-        print(row)
+        print(f"{row.score} {row.text}")
