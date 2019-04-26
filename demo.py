@@ -131,7 +131,7 @@ async def homepage(request):
         else:
             sentences, graph, lang = summarize_textrank(
                 values['text'])
-        print(lang)
+        print("Language dected:", lang)
         extra_info = []
         keywords, lemma2words, word_graph, pagerank_scores = _keywords(
             values['text'])

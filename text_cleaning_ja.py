@@ -7,7 +7,7 @@ import nagisa
 from summa.syntactic_unit import SyntacticUnit
 from text_cleaning_zh import clean_text, insert_unit
 
-DEBUG = 1
+DEBUG = 0
 
 TOKEN = namedtuple("token", ["content", "postag", "postag_raw"])
 

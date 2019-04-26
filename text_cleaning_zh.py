@@ -4,7 +4,7 @@ from typing import List, Sequence, Dict, Any
 from summa.syntactic_unit import SyntacticUnit
 
 from baidunlp import ner_tags
-DEBUG = 1
+DEBUG = 0
 
 
 def insert_unit(target_list: List[SyntacticUnit], raw: List[str],
@@ -27,7 +27,7 @@ def clean_text(text: str) -> str:
 
 def get_tokens(text):
     text = clean_text(text)
-    return ner_tags(text.strip())
+    return ner_tags(text.strip(), verbose=False)
 
 
 def clean_and_cut_words(text: str, pos_tags: Sequence = ("noun", "verb"),

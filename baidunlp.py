@@ -43,7 +43,9 @@ def get_client():
     APP_ID = os.environ["BAIDU_APP_ID"]
     API_KEY = os.environ["BAIDU_APP_KEY"]
     SECRET_KEY = os.environ["BAIDU_SECRET_KEY"]
-    return AipNlp(APP_ID, API_KEY, SECRET_KEY)
+    client = AipNlp(APP_ID, API_KEY, SECRET_KEY)
+    client.setConnectionTimeoutInMillis(5000)
+    return client
 
 
 def convert_ner_tags(ner_items):
@@ -58,6 +60,9 @@ def convert_ner_tags(ner_items):
 @lru_cache(maxsize=32)
 def ner_tags(text, verbose=False) -> Dict[str, Any]:
     res = get_client().lexer(CC.convert(text))
+    if "items" not in res:
+        print(res)
+        raise ValueError("NER Request Failed.")
     if verbose:
         print([
             (x["item"], x["pos"], x["ne"])
