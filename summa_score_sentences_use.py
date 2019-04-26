@@ -58,7 +58,7 @@ def cosine_similarity(similarity_matrix, id_1, id_2):
     return similarity_matrix[id_1, id_2]
 
 
-def attach_setence_embeddings(sentences, model_name, batch_size=32):
+def attach_sentence_embeddings(sentences, model_name, batch_size=32):
     model = get_model(model_name)
     # don't use extremely short sentences
     sentences_subset = [x for x in sentences if len(x.text) > 5]
@@ -109,15 +109,29 @@ def summarize(text, model_name="large", additional_stopwords=None):
                     sent.token = len(sentences) + j
                 sentences += tmp
     elif lang == "zh" or lang == "ko":  # zh-Hant sometimes got misclassified into ko
-        raise NotImplementedError("Not supported yet： zh.")
+        if model_name != "xling":
+            raise ValueError("Only 'xling' model supports zh.")
+        if not ZH_SUPPORT:
+            raise ImportError("Missing dependencies for Chinese support.")
+        sentences = zh_clean_and_cut_sentences(text)
+        for i, sent in enumerate(sentences):
+            # Hacky way to overwrite token
+            sent.token = i
     elif lang == "ja":
-        raise NotImplementedError("Not supported yet： ja.")
+        if model_name != "xling":
+            raise ValueError("Only 'xling' model supports ja.")
+        if not JA_SUPPORT:
+            raise ImportError("Missing dependencies for Japanese support.")
+        sentences = ja_clean_and_cut_sentences(text)
+        for i, sent in enumerate(sentences):
+            # Hacky way to overwrite token
+            sent.token = i
     else:
         return ["Language not suppored! (supported languages: en, zh, ja)"], None, lang
 
     # print([sentence.token for sentence in sentences if sentence.token])
     # Creates the graph and calculates the similarity coefficient for every pair of nodes.
-    similarities = attach_setence_embeddings(
+    similarities = attach_sentence_embeddings(
         sentences, batch_size=32, model_name=model_name)
     graph = _build_graph([x.token for x in sentences])
     _set_graph_edge_weights(graph, partial(cosine_similarity, similarities))

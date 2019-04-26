@@ -1,0 +1,1476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+  <title>Demo Page for TextRank Algorithm</title>
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.css">
+
+  <!-- Javascript
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.2.22/cytoscape.js"></script>
+
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="icon" type="image/png" href="static/images/favicon.png">
+  <style>
+      #cy {
+          height: 500px;
+          top: 0px;
+          left: 0px;
+      }
+      #cy-word {
+          height: 750px;
+          top: 0px;
+          left: 0px;
+      }
+      #tip {
+        margin-top: 100px;
+      }
+  </style>
+
+</head>
+<body>
+  <!-- Primary Page Layout
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <div class="container">
+    <div class="row" style="margin-top: 10%">
+      <div class="two-third column"><h1>Simple TextRank Demo</h1></div>
+    </div>
+    <div class="row">
+      <div class="eight columns" style="padding-top: 2%">
+        <h4>Text Source</h4>
+        <form action="/" method="POST">
+            <textarea class="u-full-width" placeholder="Paste article here..." id="exampleMessage" name="text" style="height:400px">中国有无上权力的国家主席习近平仅用一周的时间就做出了让步。马来西亚曾公开抨击中国对一个样板铁路项目要价过高，并取消了这笔交易。
+习近平在去年的一个重要讲话中回应说，他所珍视的全球基础设施倡议会更谨慎，更多地寻求协商，罕见地承认了中国的过分做法。这个月，中国将该铁路项目的成本削减了三分之一。
+面对外界对价格过高和项目过多的广泛批评，中国正在重塑和调整其宏伟的基础设施计划，即“一带一路”倡议。但北京并没有放弃自己的愿景：建设一个把自己置于全球贸易中心的港口、铁路和公路网络，并以此来增强其地缘政治野心。
+相反，中国的努力是为了向全球领导人展示一个更友好的面孔。本周，一些领导人将聚集北京，参加庆祝该倡议实施六周年的会议。为了表明自己是一个更负责任的参与者，中国承诺从事廉洁、环保的合作项目。它还在寻求大型跨国银行的建议，邀请像日本这样的国家加入到合作中来，并在个别情况下缩小项目规模。
+“一带一路会作出战术上的调整，而非战略上的，”中国国际经济交流中心信息部前部长王军说。
+这个倡议最初曾被标榜为一个上万亿美元的投资计划，但随着国内经济增长减弱，投资规模已有所缩小。它是习近平喜爱的项目之一，是习近平在2013年上任后不久在哈萨克斯坦一所大学演讲时提出的想法。
+习近平很看重这个倡议，甚至指示将其写入了中共党章。在习近平看来，通过在国外建设基础设施来维持货物——未来可能还有军事装备——进出中国的流动，对巩固国家走上大国之路、与美国竞争具有内在意义。
+但是，以“一带一路”名义进行的声势浩大的扩张，已经损害了中国的声誉。一些国家抱怨担上了不可持续的债务，还有一些国家则批评中国从国内带来大批建筑工人的做法。
+去年，斯里兰卡由于无法偿还贷款，不得不将自己的主要港口让给中国。巴基斯坦也在抱怨高昂的造价和沉重的债务负担。肯尼亚和埃塞俄比亚的新铁路未能盈利。印度尼西亚一个新高速铁路项目的进度远远落后于时间表。
+在这样的背景下，该倡议已在西欧和美国的官员中引起了广泛关注。特朗普政府称该项目是掠夺性的。</textarea>
+            <div class="row">
+              <div class="five columns">
+                <label for="metricInput">Similarity Metric</label>
+                <select class="u-full-width" name="metricInput" id="metricInput">
+                  <option value="textrank" selected>Textrank Original</option>
+                  <option value="use-base"  >USE Base</option>
+                  <option value="use-large" >USE Large</option>
+                  <option value="use-xling" >USE Xling</option>
+                </select>
+              </div>
+              <div class="four columns">
+                # of sentences to highlight: <input class="u-full-width" type="text" name="n_sentences" value="3">
+              </div>
+              <div class="three columns">
+                # of keywords: <input class="u-full-width" type="text" name="n_keywords" value="5">
+              </div>
+            </div>
+            <input class="button-primary" type="submit" value="Submit">
+        </form>
+      </div>
+      <div class="four columns" style="padding-top: 2%">
+        <h4>Statistics</h4>
+        <ul>
+        
+          <li># of Sentence Nodes: 23</li>
+        
+          <li># of Sentence Edges: 137</li>
+        
+          <li>Max Edge Weight: 1.9731</li>
+        
+          <li>Min Edge Weight: 0.3648</li>
+        
+          <li>Max Node Score: 0.3623</li>
+        
+          <li>Min Node Score: 0.0520</li>
+        
+        </ul>
+        <h4>Keywords</h4>
+        <ol>
+        
+          <li>中国 0.39</li>
+        
+          <li>项目 0.31</li>
+        
+          <li>习近平 0.26</li>
+        
+          <li>倡议 0.25</li>
+        
+          <li>国家 0.17</li>
+        
+        </ol>
+      </div>
+    </div>
+    <div class="row">
+      <div class="twelve columns"style="padding-top: 2%">
+          <h4>Results</h4>
+          
+          <p>
+            
+              <span style="background-color: rgba(255, 255, 75, 0);">中国有无上权力的国家主席习近平仅用一周的时间就做出了让步。</span>
+            
+              <span style="background-color: rgba(255, 255, 75, 0);">马来西亚曾公开抨击中国对一个样板铁路项目要价过高，并取消了这笔交易。</span>
+            
+          </p>
+          
+          <p>
+            
+              <span style="background-color: rgba(255, 255, 75, 0.7711);">习近平在去年的一个重要讲话中回应说，他所珍视的全球基础设施倡议会更谨慎，更多地寻求协商，罕见地承认了中国的过分做法。</span>
+            
+              <span style="background-color: rgba(255, 255, 75, 0.7295);">这个月，中国将该铁路项目的成本削减了三分之一。</span>
+            
+          </p>
+          
+          <p>
+            
+              <span style="background-color: rgba(255, 255, 75, 1.0);">面对外界对价格过高和项目过多的广泛批评，中国正在重塑和调整其宏伟的基础设施计划，即“一带一路”倡议。</span>
+            
+              <span style="background-color: rgba(255, 255, 75, 0);">但北京并没有放弃自己的愿景：建设一个把自己置于全球贸易中心的港口、铁路和公路网络，并以此来增强其地缘政治野心。</span>
+            
+          </p>
+          
+          <p>
+            
+              <span style="background-color: rgba(255, 255, 75, 0);">相反，中国的努力是为了向全球领导人展示一个更友好的面孔。</span>
+            
+              <span style="background-color: rgba(255, 255, 75, 0);">本周，一些领导人将聚集北京，参加庆祝该倡议实施六周年的会议。</span>
+            
+              <span style="background-color: rgba(255, 255, 75, 0);">为了表明自己是一个更负责任的参与者，中国承诺从事廉洁、环保的合作项目。</span>
+            
+              <span style="background-color: rgba(255, 255, 75, 0);">它还在寻求大型跨国银行的建议，邀请像日本这样的国家加入到合作中来，并在个别情况下缩小项目规模。</span>
+            
+          </p>
+          
+          <p>
+            
+              <span style="background-color: rgba(255, 255, 75, 0);">“一带一路会作出战术上的调整，而非战略上的，”中国国际经济交流中心信息部前部长王军说。</span>
+            
+          </p>
+          
+          <p>
+            
+              <span style="background-color: rgba(255, 255, 75, 0);">这个倡议最初曾被标榜为一个上万亿美元的投资计划，但随着国内经济增长减弱，投资规模已有所缩小。</span>
+            
+              <span style="background-color: rgba(255, 255, 75, 0);">它是习近平喜爱的项目之一，是习近平在2013年上任后不久在哈萨克斯坦一所大学演讲时提出的想法。</span>
+            
+          </p>
+          
+          <p>
+            
+              <span style="background-color: rgba(255, 255, 75, 0);">习近平很看重这个倡议，甚至指示将其写入了中共党章。</span>
+            
+              <span style="background-color: rgba(255, 255, 75, 0);">在习近平看来，通过在国外建设基础设施来维持货物——未来可能还有军事装备——进出中国的流动，对巩固国家走上大国之路、与美国竞争具有内在意义。</span>
+            
+          </p>
+          
+          <p>
+            
+              <span style="background-color: rgba(255, 255, 75, 0);">但是，以“一带一路”名义进行的声势浩大的扩张，已经损害了中国的声誉。</span>
+            
+              <span style="background-color: rgba(255, 255, 75, 0);">一些国家抱怨担上了不可持续的债务，还有一些国家则批评中国从国内带来大批建筑工人的做法。</span>
+            
+          </p>
+          
+          <p>
+            
+              <span style="background-color: rgba(255, 255, 75, 0);">去年，斯里兰卡由于无法偿还贷款，不得不将自己的主要港口让给中国。</span>
+            
+              <span style="background-color: rgba(255, 255, 75, 0);">巴基斯坦也在抱怨高昂的造价和沉重的债务负担。</span>
+            
+              <span style="background-color: rgba(255, 255, 75, 0);">肯尼亚和埃塞俄比亚的新铁路未能盈利。</span>
+            
+              <span style="background-color: rgba(255, 255, 75, 0);">印度尼西亚一个新高速铁路项目的进度远远落后于时间表。</span>
+            
+          </p>
+          
+          <p>
+            
+              <span style="background-color: rgba(255, 255, 75, 0);">在这样的背景下，该倡议已在西欧和美国的官员中引起了广泛关注。</span>
+            
+              <span style="background-color: rgba(255, 255, 75, 0);">特朗普政府称该项目是掠夺性的。</span>
+            
+          </p>
+          
+      </div>
+    </div>
+    <div class="row" id="network">
+      <div class="nine columns" style="padding-top: 2%">
+          <h4>Sentence Network</h4>
+          <div id="cy"></div>
+      </div>
+      <div class="three columns" id="tip">
+        Click on a node to show details.
+      </div>
+    </div>
+    <div class="row" id="word-network">
+      <div class="twelve columns" style="padding-top: 2%">
+          <h4>Word Network</h4>
+          <div id="word-info">Click on a node to show word information.</div>
+          <div id="cy-word"></div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="twelve columns" style="padding-top: 2%; padding-bottom: 5%;">
+        <b>Built by CeShine Lee, based on TextRank implementation <a href="https://github.com/summanlp/textrank">summanlp/textrank</a>.</b>
+      </div>
+    </div>
+  </div>
+
+<script>
+  var cy = cytoscape({
+    container: document.getElementById('cy'), // container to render in
+
+    elements: [ // list of graph elements to start with
+      
+      { // node a
+        data: {
+          id: 'n0',
+          label: 'P 1 S 1',
+          paragraph: '1',
+          sentence: '1',
+          score: '0.2312',
+          transformed_score: '24.74',
+          name: '中国有无上权力的国家主席习近平仅用一周的时间就做出了让步。<br/><br/>Tokens: 中国 有 权力 国家 主席 习近平 用 时间 做出 让步'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'n1',
+          label: 'P 1 S 2',
+          paragraph: '1',
+          sentence: '2',
+          score: '0.2674',
+          transformed_score: '30.15',
+          name: '马来西亚曾公开抨击中国对一个样板铁路项目要价过高，并取消了这笔交易。<br/><br/>Tokens: 马来西亚 抨击 中国 样板 铁路 项目 要 价 取消 交易'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'n2',
+          label: 'P 2 S 1',
+          paragraph: '2',
+          sentence: '1',
+          score: '0.3132',
+          transformed_score: '38.55',
+          name: '习近平在去年的一个重要讲话中回应说，他所珍视的全球基础设施倡议会更谨慎，更多地寻求协商，罕见地承认了中国的过分做法。<br/><br/>Tokens: 习近平 讲话 回应 说 珍视 全球 基础 设施 倡议 会 寻求 协商 承认 中国 做法'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'n3',
+          label: 'P 2 S 2',
+          paragraph: '2',
+          sentence: '2',
+          score: '0.3028',
+          transformed_score: '36.48',
+          name: '这个月，中国将该铁路项目的成本削减了三分之一。<br/><br/>Tokens: 中国 铁路 项目 成本 削减'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'n4',
+          label: 'P 3 S 1',
+          paragraph: '3',
+          sentence: '1',
+          score: '0.3623',
+          transformed_score: '50.00',
+          name: '面对外界对价格过高和项目过多的广泛批评，中国正在重塑和调整其宏伟的基础设施计划，即“一带一路”倡议。<br/><br/>Tokens: 面 对 外界 价格 项目 批评 中国 重塑 调整 基础 设施 计划 即 一 带 一 路 倡议'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'n5',
+          label: 'P 3 S 2',
+          paragraph: '3',
+          sentence: '2',
+          score: '0.1521',
+          transformed_score: '15.82',
+          name: '但北京并没有放弃自己的愿景：建设一个把自己置于全球贸易中心的港口、铁路和公路网络，并以此来增强其地缘政治野心。<br/><br/>Tokens: 北京 并 没 有 放弃 愿景 建设 置于 全球 贸易 中心 港口 铁路 公路 网络 来 增强 地缘 政治 野心'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'n6',
+          label: 'P 4 S 1',
+          paragraph: '4',
+          sentence: '1',
+          score: '0.1977',
+          transformed_score: '20.53',
+          name: '相反，中国的努力是为了向全球领导人展示一个更友好的面孔。<br/><br/>Tokens: 中国 努力 全球 领导 人 展示 面孔'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'n7',
+          label: 'P 4 S 2',
+          paragraph: '4',
+          sentence: '2',
+          score: '0.1207',
+          transformed_score: '13.15',
+          name: '本周，一些领导人将聚集北京，参加庆祝该倡议实施六周年的会议。<br/><br/>Tokens: 领导 人 聚集 北京 参加 庆祝 倡议 实施 会议'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'n8',
+          label: 'P 4 S 3',
+          paragraph: '4',
+          sentence: '3',
+          score: '0.2277',
+          transformed_score: '24.26',
+          name: '为了表明自己是一个更负责任的参与者，中国承诺从事廉洁、环保的合作项目。<br/><br/>Tokens: 表明 负 责任 参与 者 中国 承诺 从事 合作 项目'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'n9',
+          label: 'P 4 S 4',
+          paragraph: '4',
+          sentence: '4',
+          score: '0.1798',
+          transformed_score: '18.55',
+          name: '它还在寻求大型跨国银行的建议，邀请像日本这样的国家加入到合作中来，并在个别情况下缩小项目规模。<br/><br/>Tokens: 寻求 跨国 银行 建议 邀请 像 日本 国家 加入 到 合作 来 情况 缩小 项目 规模'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'n10',
+          label: 'P 5 S 1',
+          paragraph: '5',
+          sentence: '1',
+          score: '0.2221',
+          transformed_score: '23.52',
+          name: '“一带一路会作出战术上的调整，而非战略上的，”中国国际经济交流中心信息部前部长王军说。<br/><br/>Tokens: 一 带 路 会 作出 战术 调整 非 战略 中国 国际 经济 交流 中心 信息 部 部长 王军 说'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'n11',
+          label: 'P 6 S 1',
+          paragraph: '6',
+          sentence: '1',
+          score: '0.1550',
+          transformed_score: '16.09',
+          name: '这个倡议最初曾被标榜为一个上万亿美元的投资计划，但随着国内经济增长减弱，投资规模已有所缩小。<br/><br/>Tokens: 倡议 标榜 为 上 投资 计划 国内 经济 增长 减弱 投资 规模 已有 缩小'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'n12',
+          label: 'P 6 S 2',
+          paragraph: '6',
+          sentence: '2',
+          score: '0.1657',
+          transformed_score: '17.11',
+          name: '它是习近平喜爱的项目之一，是习近平在2013年上任后不久在哈萨克斯坦一所大学演讲时提出的想法。<br/><br/>Tokens: 习近平 喜爱 项目 习近平 上 任 哈 萨克斯 坦 大学 演讲 时 提出 想法'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'n13',
+          label: 'P 7 S 1',
+          paragraph: '7',
+          sentence: '1',
+          score: '0.1373',
+          transformed_score: '14.51',
+          name: '习近平很看重这个倡议，甚至指示将其写入了中共党章。<br/><br/>Tokens: 习近平 看 重 倡议 指示 写入 中共 党章'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'n14',
+          label: 'P 7 S 2',
+          paragraph: '7',
+          sentence: '2',
+          score: '0.2921',
+          transformed_score: '34.46',
+          name: '在习近平看来，通过在国外建设基础设施来维持货物——未来可能还有军事装备——进出中国的流动，对巩固国家走上大国之路、与美国竞争具有内在意义。<br/><br/>Tokens: 习近平 看 来 国外 建设 基础 设施 来 维持 货物 可能 还有 军事 装备 进 出 中国 流动 巩固 国家 走 上 大 国 之路 美国 竞争 具有 意义'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'n15',
+          label: 'P 8 S 1',
+          paragraph: '8',
+          sentence: '1',
+          score: '0.1942',
+          transformed_score: '20.12',
+          name: '但是，以“一带一路”名义进行的声势浩大的扩张，已经损害了中国的声誉。<br/><br/>Tokens: 一 带 一 路 名义 进行 扩张 损害 中国 声誉'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'n16',
+          label: 'P 8 S 2',
+          paragraph: '8',
+          sentence: '2',
+          score: '0.2604',
+          transformed_score: '29.03',
+          name: '一些国家抱怨担上了不可持续的债务，还有一些国家则批评中国从国内带来大批建筑工人的做法。<br/><br/>Tokens: 国家 抱怨 担 上 不 可 持续 债务 还有 国家 批评 中国 国内 带来 建筑 工人 做法'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'n17',
+          label: 'P 9 S 1',
+          paragraph: '9',
+          sentence: '1',
+          score: '0.1593',
+          transformed_score: '16.50',
+          name: '去年，斯里兰卡由于无法偿还贷款，不得不将自己的主要港口让给中国。<br/><br/>Tokens: 斯里兰卡 偿还 贷款 港口 让 给 中国'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'n18',
+          label: 'P 9 S 2',
+          paragraph: '9',
+          sentence: '2',
+          score: '0.0520',
+          transformed_score: '8.59',
+          name: '巴基斯坦也在抱怨高昂的造价和沉重的债务负担。<br/><br/>Tokens: 巴基斯坦 抱怨 造价 债务 负担'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'n19',
+          label: 'P 9 S 3',
+          paragraph: '9',
+          sentence: '3',
+          score: '0.0768',
+          transformed_score: '10.05',
+          name: '肯尼亚和埃塞俄比亚的新铁路未能盈利。<br/><br/>Tokens: 肯尼亚 埃塞 俄 比亚 铁路 未能 盈利'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'n20',
+          label: 'P 9 S 4',
+          paragraph: '9',
+          sentence: '4',
+          score: '0.1638',
+          transformed_score: '16.93',
+          name: '印度尼西亚一个新高速铁路项目的进度远远落后于时间表。<br/><br/>Tokens: 印 度 尼 西亚 高速 铁路 项目 进度 时间 表'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'n21',
+          label: 'P 10 S 1',
+          paragraph: '10',
+          sentence: '1',
+          score: '0.0968',
+          transformed_score: '11.39',
+          name: '在这样的背景下，该倡议已在西欧和美国的官员中引起了广泛关注。<br/><br/>Tokens: 背景 倡议 西欧 美国 官员 引起 关注'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'n22',
+          label: 'P 10 S 2',
+          paragraph: '10',
+          sentence: '2',
+          score: '0.1115',
+          transformed_score: '12.45',
+          name: '特朗普政府称该项目是掠夺性的。<br/><br/>Tokens: 特朗普 政府 称 项目 掠夺 性'
+        }
+      },
+      
+      
+      { // edge ab
+        data: { id: 'n0_n1', source: 'n0', target: 'n1', weight: '0.5' }
+      },
+      
+      { // edge ab
+        data: { id: 'n0_n2', source: 'n0', target: 'n2', weight: '0.9190791018883572' }
+      },
+      
+      { // edge ab
+        data: { id: 'n0_n3', source: 'n0', target: 'n3', weight: '0.588591910067779' }
+      },
+      
+      { // edge ab
+        data: { id: 'n0_n4', source: 'n0', target: 'n4', weight: '0.4434053967922575' }
+      },
+      
+      { // edge ab
+        data: { id: 'n0_n5', source: 'n0', target: 'n5', weight: '0.43458798967609363' }
+      },
+      
+      { // edge ab
+        data: { id: 'n0_n6', source: 'n0', target: 'n6', weight: '0.5419766203817945' }
+      },
+      
+      { // edge ab
+        data: { id: 'n0_n8', source: 'n0', target: 'n8', weight: '0.5' }
+      },
+      
+      { // edge ab
+        data: { id: 'n0_n9', source: 'n0', target: 'n9', weight: '0.4536958096060714' }
+      },
+      
+      { // edge ab
+        data: { id: 'n0_n10', source: 'n0', target: 'n10', weight: '0.43883638827026494' }
+      },
+      
+      { // edge ab
+        data: { id: 'n0_n12', source: 'n0', target: 'n12', weight: '0.4659554245485504' }
+      },
+      
+      { // edge ab
+        data: { id: 'n0_n13', source: 'n0', target: 'n13', weight: '0.5254612271806532' }
+      },
+      
+      { // edge ab
+        data: { id: 'n0_n14', source: 'n0', target: 'n14', weight: '1.2183245773265545' }
+      },
+      
+      { // edge ab
+        data: { id: 'n0_n15', source: 'n0', target: 'n15', weight: '0.5' }
+      },
+      
+      { // edge ab
+        data: { id: 'n0_n16', source: 'n0', target: 'n16', weight: '0.8966804757690342' }
+      },
+      
+      { // edge ab
+        data: { id: 'n0_n17', source: 'n0', target: 'n17', weight: '0.5419766203817945' }
+      },
+      
+      { // edge ab
+        data: { id: 'n0_n20', source: 'n0', target: 'n20', weight: '0.5' }
+      },
+      
+      { // edge ab
+        data: { id: 'n1_n2', source: 'n1', target: 'n2', weight: '0.4595395509441786' }
+      },
+      
+      { // edge ab
+        data: { id: 'n1_n3', source: 'n1', target: 'n3', weight: '1.765775730203337' }
+      },
+      
+      { // edge ab
+        data: { id: 'n1_n4', source: 'n1', target: 'n4', weight: '0.886810793584515' }
+      },
+      
+      { // edge ab
+        data: { id: 'n1_n5', source: 'n1', target: 'n5', weight: '0.43458798967609363' }
+      },
+      
+      { // edge ab
+        data: { id: 'n1_n6', source: 'n1', target: 'n6', weight: '0.5419766203817945' }
+      },
+      
+      { // edge ab
+        data: { id: 'n1_n8', source: 'n1', target: 'n8', weight: '1.0' }
+      },
+      
+      { // edge ab
+        data: { id: 'n1_n9', source: 'n1', target: 'n9', weight: '0.4536958096060714' }
+      },
+      
+      { // edge ab
+        data: { id: 'n1_n10', source: 'n1', target: 'n10', weight: '0.43883638827026494' }
+      },
+      
+      { // edge ab
+        data: { id: 'n1_n12', source: 'n1', target: 'n12', weight: '0.4659554245485504' }
+      },
+      
+      { // edge ab
+        data: { id: 'n1_n14', source: 'n1', target: 'n14', weight: '0.4061081924421849' }
+      },
+      
+      { // edge ab
+        data: { id: 'n1_n15', source: 'n1', target: 'n15', weight: '0.5' }
+      },
+      
+      { // edge ab
+        data: { id: 'n1_n16', source: 'n1', target: 'n16', weight: '0.4483402378845171' }
+      },
+      
+      { // edge ab
+        data: { id: 'n1_n17', source: 'n1', target: 'n17', weight: '0.5419766203817945' }
+      },
+      
+      { // edge ab
+        data: { id: 'n1_n19', source: 'n1', target: 'n19', weight: '0.5419766203817945' }
+      },
+      
+      { // edge ab
+        data: { id: 'n1_n20', source: 'n1', target: 'n20', weight: '1.0' }
+      },
+      
+      { // edge ab
+        data: { id: 'n1_n22', source: 'n1', target: 'n22', weight: '0.5623818557528477' }
+      },
+      
+      { // edge ab
+        data: { id: 'n2_n3', source: 'n2', target: 'n3', weight: '0.5333159078712726' }
+      },
+      
+      { // edge ab
+        data: { id: 'n2_n4', source: 'n2', target: 'n4', weight: '1.645167234522641' }
+      },
+      
+      { // edge ab
+        data: { id: 'n2_n5', source: 'n2', target: 'n5', weight: '0.40369440861835026' }
+      },
+      
+      { // edge ab
+        data: { id: 'n2_n6', source: 'n2', target: 'n6', weight: '0.9895164203176374' }
+      },
+      
+      { // edge ab
+        data: { id: 'n2_n7', source: 'n2', target: 'n7', weight: '0.469410012078276' }
+      },
+      
+      { // edge ab
+        data: { id: 'n2_n8', source: 'n2', target: 'n8', weight: '0.4595395509441786' }
+      },
+      
+      { // edge ab
+        data: { id: 'n2_n9', source: 'n2', target: 'n9', weight: '0.42013077767034723' }
+      },
+      
+      { // edge ab
+        data: { id: 'n2_n10', source: 'n2', target: 'n10', weight: '1.2220731537346925' }
+      },
+      
+      { // edge ab
+        data: { id: 'n2_n11', source: 'n2', target: 'n11', weight: '0.43062255242977826' }
+      },
+      
+      { // edge ab
+        data: { id: 'n2_n12', source: 'n2', target: 'n12', weight: '0.43062255242977826' }
+      },
+      
+      { // edge ab
+        data: { id: 'n2_n13', source: 'n2', target: 'n13', weight: '0.9619171026103939' }
+      },
+      
+      { // edge ab
+        data: { id: 'n2_n14', source: 'n2', target: 'n14', weight: '1.5160190588067157' }
+      },
+      
+      { // edge ab
+        data: { id: 'n2_n15', source: 'n2', target: 'n15', weight: '0.4595395509441786' }
+      },
+      
+      { // edge ab
+        data: { id: 'n2_n16', source: 'n2', target: 'n16', weight: '0.831068608893683' }
+      },
+      
+      { // edge ab
+        data: { id: 'n2_n17', source: 'n2', target: 'n17', weight: '0.4947582101588187' }
+      },
+      
+      { // edge ab
+        data: { id: 'n2_n21', source: 'n2', target: 'n21', weight: '0.4947582101588187' }
+      },
+      
+      { // edge ab
+        data: { id: 'n3_n4', source: 'n3', target: 'n4', weight: '1.0234144382489168' }
+      },
+      
+      { // edge ab
+        data: { id: 'n3_n5', source: 'n3', target: 'n5', weight: '0.5' }
+      },
+      
+      { // edge ab
+        data: { id: 'n3_n6', source: 'n3', target: 'n6', weight: '0.6476398521807291' }
+      },
+      
+      { // edge ab
+        data: { id: 'n3_n8', source: 'n3', target: 'n8', weight: '1.177183820135558' }
+      },
+      
+      { // edge ab
+        data: { id: 'n3_n9', source: 'n3', target: 'n9', weight: '0.5254612271806531' }
+      },
+      
+      { // edge ab
+        data: { id: 'n3_n10', source: 'n3', target: 'n10', weight: '0.5056318270792695' }
+      },
+      
+      { // edge ab
+        data: { id: 'n3_n12', source: 'n3', target: 'n12', weight: '0.5419766203817945' }
+      },
+      
+      { // edge ab
+        data: { id: 'n3_n14', source: 'n3', target: 'n14', weight: '0.4626699381900465' }
+      },
+      
+      { // edge ab
+        data: { id: 'n3_n15', source: 'n3', target: 'n15', weight: '0.588591910067779' }
+      },
+      
+      { // edge ab
+        data: { id: 'n3_n16', source: 'n3', target: 'n16', weight: '0.5182907592915772' }
+      },
+      
+      { // edge ab
+        data: { id: 'n3_n17', source: 'n3', target: 'n17', weight: '0.6476398521807291' }
+      },
+      
+      { // edge ab
+        data: { id: 'n3_n19', source: 'n3', target: 'n19', weight: '0.6476398521807291' }
+      },
+      
+      { // edge ab
+        data: { id: 'n3_n20', source: 'n3', target: 'n20', weight: '1.177183820135558' }
+      },
+      
+      { // edge ab
+        data: { id: 'n3_n22', source: 'n3', target: 'n22', weight: '0.6769924925288454' }
+      },
+      
+      { // edge ab
+        data: { id: 'n4_n6', source: 'n4', target: 'n6', weight: '0.4761064671776891' }
+      },
+      
+      { // edge ab
+        data: { id: 'n4_n7', source: 'n4', target: 'n7', weight: '0.45258800841731317' }
+      },
+      
+      { // edge ab
+        data: { id: 'n4_n8', source: 'n4', target: 'n8', weight: '0.886810793584515' }
+      },
+      
+      { // edge ab
+        data: { id: 'n4_n9', source: 'n4', target: 'n9', weight: '0.4066044785357163' }
+      },
+      
+      { // edge ab
+        data: { id: 'n4_n10', source: 'n4', target: 'n10', weight: '1.9731446286407113' }
+      },
+      
+      { // edge ab
+        data: { id: 'n4_n11', source: 'n4', target: 'n11', weight: '0.8328473180692686' }
+      },
+      
+      { // edge ab
+        data: { id: 'n4_n12', source: 'n4', target: 'n12', weight: '0.4164236590346343' }
+      },
+      
+      { // edge ab
+        data: { id: 'n4_n13', source: 'n4', target: 'n13', weight: '0.46331420401456347' }
+      },
+      
+      { // edge ab
+        data: { id: 'n4_n14', source: 'n4', target: 'n14', weight: '1.103886581057506' }
+      },
+      
+      { // edge ab
+        data: { id: 'n4_n15', source: 'n4', target: 'n15', weight: '1.77362158716903' }
+      },
+      
+      { // edge ab
+        data: { id: 'n4_n16', source: 'n4', target: 'n16', weight: '0.8045953897701662' }
+      },
+      
+      { // edge ab
+        data: { id: 'n4_n17', source: 'n4', target: 'n17', weight: '0.4761064671776891' }
+      },
+      
+      { // edge ab
+        data: { id: 'n4_n20', source: 'n4', target: 'n20', weight: '0.4434053967922575' }
+      },
+      
+      { // edge ab
+        data: { id: 'n4_n21', source: 'n4', target: 'n21', weight: '0.4761064671776891' }
+      },
+      
+      { // edge ab
+        data: { id: 'n4_n22', source: 'n4', target: 'n22', weight: '0.4917814092127233' }
+      },
+      
+      { // edge ab
+        data: { id: 'n5_n6', source: 'n5', target: 'n6', weight: '0.4659554245485504' }
+      },
+      
+      { // edge ab
+        data: { id: 'n5_n7', source: 'n5', target: 'n7', weight: '0.4434053967922575' }
+      },
+      
+      { // edge ab
+        data: { id: 'n5_n9', source: 'n5', target: 'n9', weight: '0.3991776974050296' }
+      },
+      
+      { // edge ab
+        data: { id: 'n5_n10', source: 'n5', target: 'n10', weight: '0.38762941252569555' }
+      },
+      
+      { // edge ab
+        data: { id: 'n5_n14', source: 'n5', target: 'n14', weight: '0.7237387783067812' }
+      },
+      
+      { // edge ab
+        data: { id: 'n5_n17', source: 'n5', target: 'n17', weight: '0.4659554245485504' }
+      },
+      
+      { // edge ab
+        data: { id: 'n5_n19', source: 'n5', target: 'n19', weight: '0.4659554245485504' }
+      },
+      
+      { // edge ab
+        data: { id: 'n5_n20', source: 'n5', target: 'n20', weight: '0.43458798967609363' }
+      },
+      
+      { // edge ab
+        data: { id: 'n6_n7', source: 'n6', target: 'n7', weight: '1.1115183285383936' }
+      },
+      
+      { // edge ab
+        data: { id: 'n6_n8', source: 'n6', target: 'n8', weight: '0.5419766203817945' }
+      },
+      
+      { // edge ab
+        data: { id: 'n6_n10', source: 'n6', target: 'n10', weight: '0.47084268068020735' }
+      },
+      
+      { // edge ab
+        data: { id: 'n6_n14', source: 'n6', target: 'n14', weight: '0.4333701915710986' }
+      },
+      
+      { // edge ab
+        data: { id: 'n6_n15', source: 'n6', target: 'n15', weight: '0.5419766203817945' }
+      },
+      
+      { // edge ab
+        data: { id: 'n6_n16', source: 'n6', target: 'n16', weight: '0.48180071017476656' }
+      },
+      
+      { // edge ab
+        data: { id: 'n6_n17', source: 'n6', target: 'n17', weight: '0.5916473312274692' }
+      },
+      
+      { // edge ab
+        data: { id: 'n7_n11', source: 'n7', target: 'n11', weight: '0.4761064671776891' }
+      },
+      
+      { // edge ab
+        data: { id: 'n7_n13', source: 'n7', target: 'n13', weight: '0.5384065599032098' }
+      },
+      
+      { // edge ab
+        data: { id: 'n7_n21', source: 'n7', target: 'n21', weight: '0.5557591642691968' }
+      },
+      
+      { // edge ab
+        data: { id: 'n8_n9', source: 'n8', target: 'n9', weight: '0.9073916192121428' }
+      },
+      
+      { // edge ab
+        data: { id: 'n8_n10', source: 'n8', target: 'n10', weight: '0.43883638827026494' }
+      },
+      
+      { // edge ab
+        data: { id: 'n8_n12', source: 'n8', target: 'n12', weight: '0.4659554245485504' }
+      },
+      
+      { // edge ab
+        data: { id: 'n8_n14', source: 'n8', target: 'n14', weight: '0.4061081924421849' }
+      },
+      
+      { // edge ab
+        data: { id: 'n8_n15', source: 'n8', target: 'n15', weight: '0.5' }
+      },
+      
+      { // edge ab
+        data: { id: 'n8_n16', source: 'n8', target: 'n16', weight: '0.4483402378845171' }
+      },
+      
+      { // edge ab
+        data: { id: 'n8_n17', source: 'n8', target: 'n17', weight: '0.5419766203817945' }
+      },
+      
+      { // edge ab
+        data: { id: 'n8_n20', source: 'n8', target: 'n20', weight: '0.5' }
+      },
+      
+      { // edge ab
+        data: { id: 'n8_n22', source: 'n8', target: 'n22', weight: '0.5623818557528477' }
+      },
+      
+      { // edge ab
+        data: { id: 'n9_n11', source: 'n9', target: 'n11', weight: '0.8509740182304607' }
+      },
+      
+      { // edge ab
+        data: { id: 'n9_n12', source: 'n9', target: 'n12', weight: '0.42548700911523035' }
+      },
+      
+      { // edge ab
+        data: { id: 'n9_n14', source: 'n9', target: 'n14', weight: '0.7500418203007265' }
+      },
+      
+      { // edge ab
+        data: { id: 'n9_n16', source: 'n9', target: 'n16', weight: '0.41075033791113963' }
+      },
+      
+      { // edge ab
+        data: { id: 'n9_n20', source: 'n9', target: 'n20', weight: '0.4536958096060714' }
+      },
+      
+      { // edge ab
+        data: { id: 'n9_n22', source: 'n9', target: 'n22', weight: '0.5044718317717921' }
+      },
+      
+      { // edge ab
+        data: { id: 'n10_n11', source: 'n10', target: 'n11', weight: '0.41239126268831766' }
+      },
+      
+      { // edge ab
+        data: { id: 'n10_n14', source: 'n10', target: 'n14', weight: '0.36481017701424484' }
+      },
+      
+      { // edge ab
+        data: { id: 'n10_n15', source: 'n10', target: 'n15', weight: '1.7553455530810598' }
+      },
+      
+      { // edge ab
+        data: { id: 'n10_n16', source: 'n10', target: 'n16', weight: '0.3985329964800843' }
+      },
+      
+      { // edge ab
+        data: { id: 'n10_n17', source: 'n10', target: 'n17', weight: '0.47084268068020735' }
+      },
+      
+      { // edge ab
+        data: { id: 'n11_n12', source: 'n11', target: 'n12', weight: '0.43625143477457795' }
+      },
+      
+      { // edge ab
+        data: { id: 'n11_n13', source: 'n11', target: 'n13', weight: '0.4879910233743579' }
+      },
+      
+      { // edge ab
+        data: { id: 'n11_n14', source: 'n11', target: 'n14', weight: '0.38335825946450425' }
+      },
+      
+      { // edge ab
+        data: { id: 'n11_n16', source: 'n11', target: 'n16', weight: '0.8415464915039327' }
+      },
+      
+      { // edge ab
+        data: { id: 'n11_n21', source: 'n11', target: 'n21', weight: '0.5022031461958567' }
+      },
+      
+      { // edge ab
+        data: { id: 'n12_n13', source: 'n12', target: 'n13', weight: '0.4879910233743579' }
+      },
+      
+      { // edge ab
+        data: { id: 'n12_n14', source: 'n12', target: 'n14', weight: '0.7667165189290085' }
+      },
+      
+      { // edge ab
+        data: { id: 'n12_n16', source: 'n12', target: 'n16', weight: '0.42077324575196634' }
+      },
+      
+      { // edge ab
+        data: { id: 'n12_n20', source: 'n12', target: 'n20', weight: '0.4659554245485504' }
+      },
+      
+      { // edge ab
+        data: { id: 'n12_n22', source: 'n12', target: 'n22', weight: '0.5196750841955702' }
+      },
+      
+      { // edge ab
+        data: { id: 'n13_n14', source: 'n13', target: 'n14', weight: '0.8454915065198455' }
+      },
+      
+      { // edge ab
+        data: { id: 'n13_n21', source: 'n13', target: 'n21', weight: '0.5720208493319313' }
+      },
+      
+      { // edge ab
+        data: { id: 'n14_n15', source: 'n14', target: 'n15', weight: '0.4061081924421849' }
+      },
+      
+      { // edge ab
+        data: { id: 'n14_n16', source: 'n14', target: 'n16', weight: '1.4854167800498719' }
+      },
+      
+      { // edge ab
+        data: { id: 'n14_n17', source: 'n14', target: 'n17', weight: '0.4333701915710986' }
+      },
+      
+      { // edge ab
+        data: { id: 'n14_n21', source: 'n14', target: 'n21', weight: '0.4333701915710986' }
+      },
+      
+      { // edge ab
+        data: { id: 'n15_n16', source: 'n15', target: 'n16', weight: '0.4483402378845171' }
+      },
+      
+      { // edge ab
+        data: { id: 'n15_n17', source: 'n15', target: 'n17', weight: '0.5419766203817945' }
+      },
+      
+      { // edge ab
+        data: { id: 'n16_n17', source: 'n16', target: 'n17', weight: '0.48180071017476656' }
+      },
+      
+      { // edge ab
+        data: { id: 'n16_n18', source: 'n16', target: 'n18', weight: '1.0365815185831544' }
+      },
+      
+      { // edge ab
+        data: { id: 'n19_n20', source: 'n19', target: 'n20', weight: '0.5419766203817945' }
+      },
+      
+      { // edge ab
+        data: { id: 'n20_n22', source: 'n20', target: 'n22', weight: '0.5623818557528477' }
+      },
+      
+    ],
+
+    style: [ // the stylesheet for the graph
+      {
+        selector: 'node',
+        style: {
+          'background-color': '#666',
+          'label': 'data(label)',
+          'width': 'data(transformed_score)',
+          'height': 'data(transformed_score)'
+        }
+      },
+
+      {
+        selector: 'edge',
+        style: {
+          'width': 'data(weight)',
+          'line-color': '#ccc'
+        }
+      }
+    ],
+
+    layout: {
+      name: 'concentric',
+      fit: true, // whether to fit the viewport to the graph
+      padding: 10, // the padding on fit
+      startAngle: 3 / 2 * Math.PI, // where nodes start in radians
+      sweep: undefined, // how many radians should be between the first and last node (defaults to full circle)
+      clockwise: true, // whether the layout should go clockwise (true) or counterclockwise/anticlockwise (false)
+      equidistant: false, // whether levels have an equal radial distance betwen them, may cause bounding box overflow
+      minNodeSpacing: 30, // min spacing between outside of nodes (used for radius adjustment)
+      boundingBox: undefined, // constrain layout bounds; { x1, y1, x2, y2 } or { x1, y1, w, h }
+      avoidOverlap: true, // prevents node overlap, may overflow boundingBox if not enough space
+      nodeDimensionsIncludeLabels: false, // Excludes the label when calculating node bounding boxes for the layout algorithm
+      height: undefined, // height of layout area (overrides container height)
+      width: undefined, // width of layout area (overrides container width)
+      spacingFactor: 2, // Applies a multiplicative factor (>0) to expand or compress the overall area that the nodes take up
+    }
+  });
+  cy.zoomingEnabled(false);
+
+  cy.on('tap', 'node', function (evt) {
+      console.log(evt.target.data());
+      var data = evt.target.data();
+      document.getElementById('tip').innerHTML = (
+        "<b>Paragraph " + data['paragraph'] + " Sentence "+ data['sentence'] + "</b><br/>" +
+        "Score: " + data['score'] + " Adjusted: " + data['transformed_score'] + "<br/>" +
+        data["name"]
+      );
+  });
+</script>
+
+<script>
+  var cyWord = cytoscape({
+    container: document.getElementById('cy-word'), // container to render in
+
+    elements: [ // list of graph elements to start with
+      
+      { // node a
+        data: {
+          id: 'w0',
+          label: '中国',
+          score: '0.3897',
+          transformed_score: '20.00'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w3',
+          label: '习近平',
+          score: '0.2558',
+          transformed_score: '11.57'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w11',
+          label: '铁路',
+          score: '0.1465',
+          transformed_score: '6.15'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w12',
+          label: '项目',
+          score: '0.3079',
+          transformed_score: '14.64'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w18',
+          label: '说',
+          score: '0.0917',
+          transformed_score: '4.06'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w20',
+          label: '全球',
+          score: '0.1260',
+          transformed_score: '5.31'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w21',
+          label: '基础设施',
+          score: '0.1197',
+          transformed_score: '5.07'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w22',
+          label: '倡议',
+          score: '0.2504',
+          transformed_score: '11.27'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w23',
+          label: '会',
+          score: '0.0889',
+          transformed_score: '3.97'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w24',
+          label: '寻求',
+          score: '0.0896',
+          transformed_score: '3.99'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w35',
+          label: '调整',
+          score: '0.0906',
+          transformed_score: '4.02'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w38',
+          label: '一带一路',
+          score: '0.0928',
+          transformed_score: '4.10'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w39',
+          label: '北京',
+          score: '0.0917',
+          transformed_score: '4.06'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w43',
+          label: '建设',
+          score: '0.0897',
+          transformed_score: '3.99'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w47',
+          label: '港口',
+          score: '0.0907',
+          transformed_score: '4.03'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w50',
+          label: '来',
+          score: '0.1287',
+          transformed_score: '5.42'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w56',
+          label: '领导人',
+          score: '0.0916',
+          transformed_score: '4.06'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w70',
+          label: '合作',
+          score: '0.0869',
+          transformed_score: '3.90'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w76',
+          label: '国家',
+          score: '0.1693',
+          transformed_score: '7.16'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w95',
+          label: '国内',
+          score: '0.0872',
+          transformed_score: '3.91'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w117',
+          label: '还有',
+          score: '0.0919',
+          transformed_score: '4.07'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w134',
+          label: '抱怨',
+          score: '0.0884',
+          transformed_score: '3.95'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w138',
+          label: '债务',
+          score: '0.0942',
+          transformed_score: '4.14'
+        }
+      },
+      
+      
+      { // edge ab
+        data: { id: 'w0_w11', source: 'w0', target: 'w11' }
+      },
+      
+      { // edge ab
+        data: { id: 'w0_w95', source: 'w0', target: 'w95' }
+      },
+      
+      { // edge ab
+        data: { id: 'w3_w12', source: 'w3', target: 'w12' }
+      },
+      
+      { // edge ab
+        data: { id: 'w11_w12', source: 'w11', target: 'w12' }
+      },
+      
+      { // edge ab
+        data: { id: 'w11_w47', source: 'w11', target: 'w47' }
+      },
+      
+      { // edge ab
+        data: { id: 'w12_w24', source: 'w12', target: 'w24' }
+      },
+      
+      { // edge ab
+        data: { id: 'w12_w70', source: 'w12', target: 'w70' }
+      },
+      
+      { // edge ab
+        data: { id: 'w18_w22', source: 'w18', target: 'w22' }
+      },
+      
+      { // edge ab
+        data: { id: 'w20_w21', source: 'w20', target: 'w21' }
+      },
+      
+      { // edge ab
+        data: { id: 'w20_w56', source: 'w20', target: 'w56' }
+      },
+      
+      { // edge ab
+        data: { id: 'w21_w22', source: 'w21', target: 'w22' }
+      },
+      
+      { // edge ab
+        data: { id: 'w21_w35', source: 'w21', target: 'w35' }
+      },
+      
+      { // edge ab
+        data: { id: 'w21_w43', source: 'w21', target: 'w43' }
+      },
+      
+      { // edge ab
+        data: { id: 'w21_w50', source: 'w21', target: 'w50' }
+      },
+      
+      { // edge ab
+        data: { id: 'w22_w23', source: 'w22', target: 'w23' }
+      },
+      
+      { // edge ab
+        data: { id: 'w22_w38', source: 'w22', target: 'w38' }
+      },
+      
+      { // edge ab
+        data: { id: 'w22_w39', source: 'w22', target: 'w39' }
+      },
+      
+      { // edge ab
+        data: { id: 'w23_w24', source: 'w23', target: 'w24' }
+      },
+      
+      { // edge ab
+        data: { id: 'w50_w70', source: 'w50', target: 'w70' }
+      },
+      
+      { // edge ab
+        data: { id: 'w76_w117', source: 'w76', target: 'w117' }
+      },
+      
+      { // edge ab
+        data: { id: 'w76_w134', source: 'w76', target: 'w134' }
+      },
+      
+      { // edge ab
+        data: { id: 'w117_w138', source: 'w117', target: 'w138' }
+      },
+      
+    ],
+
+    style: [ // the stylesheet for the graph
+      {
+        selector: 'node',
+        style: {
+          'background-color': '#666',
+          'label': 'data(label)',
+          'width': 'data(transformed_score)',
+          'height': 'data(transformed_score)'
+        }
+      },
+
+      {
+        selector: 'edge',
+        style: {
+          'width': 1.25,
+          'line-color': '#ccc'
+        }
+      }
+    ],
+
+    layout: {
+      name: 'concentric',
+      fit: true, // whether to fit the viewport to the graph
+      padding: 10, // the padding on fit
+      startAngle: 3 / 2 * Math.PI, // where nodes start in radians
+      sweep: undefined, // how many radians should be between the first and last node (defaults to full circle)
+      clockwise: true, // whether the layout should go clockwise (true) or counterclockwise/anticlockwise (false)
+      equidistant: false, // whether levels have an equal radial distance betwen them, may cause bounding box overflow
+      minNodeSpacing: 10, // min spacing between outside of nodes (used for radius adjustment)
+      boundingBox: undefined, // constrain layout bounds; { x1, y1, x2, y2 } or { x1, y1, w, h }
+      avoidOverlap: true, // prevents node overlap, may overflow boundingBox if not enough space
+      nodeDimensionsIncludeLabels: false, // Excludes the label when calculating node bounding boxes for the layout algorithm
+      height: undefined, // height of layout area (overrides container height)
+      width: undefined, // width of layout area (overrides container width)
+      spacingFactor: 2.5, // Applies a multiplicative factor (>0) to expand or compress the overall area that the nodes take up
+    }
+  });
+  cyWord.zoomingEnabled(false);
+  cyWord.on('tap', 'node', function (evt) {
+      console.log(evt.target.data());
+      var data = evt.target.data();
+      document.getElementById('word-info').innerHTML = (
+        "Word: <b>" + data['label'] + "</b> " +
+        "Score: <b>" + data['score'] + "</b> Adjusted: <b>" + data['transformed_score'] + "</b>"
+      );
+  });
+</script>
+
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+</body>
+</html>

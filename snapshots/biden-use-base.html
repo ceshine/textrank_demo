@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+  <title>Demo Page for TextRank Algorithm</title>
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.css">
+
+  <!-- Javascript
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.2.22/cytoscape.js"></script>
+
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="icon" type="image/png" href="static/images/favicon.png">
+  <style>
+      #cy {
+          height: 500px;
+          top: 0px;
+          left: 0px;
+      }
+      #cy-word {
+          height: 750px;
+          top: 0px;
+          left: 0px;
+      }
+      #tip {
+        margin-top: 100px;
+      }
+  </style>
+
+</head>
+<body>
+  <!-- Primary Page Layout
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <div class="container">
+    <div class="row" style="margin-top: 10%">
+      <div class="two-third column"><h1>Simple TextRank Demo</h1></div>
+    </div>
+    <div class="row">
+      <div class="eight columns" style="padding-top: 2%">
+        <h4>Text Source</h4>
+        <form action="/" method="POST">
+            <textarea class="u-full-width" placeholder="Paste article here..." id="exampleMessage" name="text" style="height:400px">Former Vice President Joseph R. Biden Jr. announced Thursday that he would seek the Democratic nomination to challenge President Trump in 2020, marshaling his experience and global stature in a bid to lead a party increasingly defined by a younger generation that might be skeptical of his age and ideological moderation.
+
+Mr. Biden, 76, is set to offer himself as a levelheaded leader for a country wracked by political conflict, a rationale he believes could attract a broad cross-section of voters who want to move on from Mr. Trump.
+
+In a three-and-a-half minute video laying out his reasons for running, Mr. Biden chose not to talk about policy issues or his biography but instead began by recalling the white supremacist march through Charlottesville, Va., in 2017 and a counterprotest, and Mr. Trump’s comment that there were “very fine people on both sides.” In that moment, Mr. Biden said, “I knew the threat to our nation was unlike any I’d ever seen in my lifetime.”
+
+“We are in the battle for the soul of this nation,” Mr. Biden said. “I believe history will look back on four years of this president and all he embraces as an aberrant moment in time. But if we give Donald Trump eight years in the White House, he will forever and fundamentally alter the character of this nation, who we are, and I cannot stand by and watch that happen.”</textarea>
+            <div class="row">
+              <div class="five columns">
+                <label for="metricInput">Similarity Metric</label>
+                <select class="u-full-width" name="metricInput" id="metricInput">
+                  <option value="textrank" >Textrank Original</option>
+                  <option value="use-base" selected >USE Base</option>
+                  <option value="use-large" >USE Large</option>
+                  <option value="use-xling" >USE Xling</option>
+                </select>
+              </div>
+              <div class="four columns">
+                # of sentences to highlight: <input class="u-full-width" type="text" name="n_sentences" value="2">
+              </div>
+              <div class="three columns">
+                # of keywords: <input class="u-full-width" type="text" name="n_keywords" value="5">
+              </div>
+            </div>
+            <input class="button-primary" type="submit" value="Submit">
+        </form>
+      </div>
+      <div class="four columns" style="padding-top: 2%">
+        <h4>Statistics</h4>
+        <ul>
+        
+          <li># of Sentence Nodes: 7</li>
+        
+          <li># of Sentence Edges: 21</li>
+        
+          <li>Max Edge Weight: 0.7730</li>
+        
+          <li>Min Edge Weight: 0.4496</li>
+        
+          <li>Max Node Score: 0.3968</li>
+        
+          <li>Min Node Score: 0.3580</li>
+        
+        </ul>
+        <h4>Keywords</h4>
+        <ol>
+        
+          <li>announc 0.54 (announced)</li>
+        
+          <li>jr 0.38 (jr)</li>
+        
+          <li>presid 0.36 (president)</li>
+        
+          <li>biden 0.35 (biden)</li>
+        
+          <li>thursday 0.30 (thursday)</li>
+        
+        </ol>
+      </div>
+    </div>
+    <div class="row">
+      <div class="twelve columns"style="padding-top: 2%">
+          <h4>Results</h4>
+          
+          <p>
+            
+              <span style="background-color: rgba(255, 255, 75, 0);">Former Vice President Joseph R. Biden Jr. announced Thursday that he would seek the Democratic nomination to challenge President Trump in 2020, marshaling his experience and global stature in a bid to lead a party increasingly defined by a younger generation that might be skeptical of his age and ideological moderation.</span>
+            
+          </p>
+          
+          <p>
+            
+          </p>
+          
+          <p>
+            
+              <span style="background-color: rgba(255, 255, 75, 1.0);">Mr. Biden, 76, is set to offer himself as a levelheaded leader for a country wracked by political conflict, a rationale he believes could attract a broad cross-section of voters who want to move on from Mr. Trump.</span>
+            
+          </p>
+          
+          <p>
+            
+          </p>
+          
+          <p>
+            
+              <span style="background-color: rgba(255, 255, 75, 0);">In a three-and-a-half minute video laying out his reasons for running, Mr. Biden chose not to talk about policy issues or his biography but instead began by recalling the white supremacist march through Charlottesville, Va., in 2017 and a counterprotest, and Mr. Trump’s comment that there were “very fine people on both sides.</span>
+            
+              <span style="background-color: rgba(255, 255, 75, 0);">”</span>
+            
+              <span style="background-color: rgba(255, 255, 75, 0);">In that moment, Mr. Biden said, “I knew the threat to our nation was unlike any I’d ever seen in my lifetime.</span>
+            
+              <span style="background-color: rgba(255, 255, 75, 0);">”</span>
+            
+          </p>
+          
+          <p>
+            
+          </p>
+          
+          <p>
+            
+              <span style="background-color: rgba(255, 255, 75, 0.9404);">“We are in the battle for the soul of this nation,” Mr. Biden said.</span>
+            
+              <span style="background-color: rgba(255, 255, 75, 0);">“</span>
+            
+              <span style="background-color: rgba(255, 255, 75, 0);">I believe history will look back on four years of this president and all he embraces as an aberrant moment in time.</span>
+            
+              <span style="background-color: rgba(255, 255, 75, 0);">But if we give Donald Trump eight years in the White House, he will forever and fundamentally alter the character of this nation, who we are, and I cannot stand by and watch that happen.”</span>
+            
+          </p>
+          
+      </div>
+    </div>
+    <div class="row" id="network">
+      <div class="nine columns" style="padding-top: 2%">
+          <h4>Sentence Network</h4>
+          <div id="cy"></div>
+      </div>
+      <div class="three columns" id="tip">
+        Click on a node to show details.
+      </div>
+    </div>
+    <div class="row" id="word-network">
+      <div class="twelve columns" style="padding-top: 2%">
+          <h4>Word Network</h4>
+          <div id="word-info">Click on a node to show word information.</div>
+          <div id="cy-word"></div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="twelve columns" style="padding-top: 2%; padding-bottom: 5%;">
+        <b>Built by CeShine Lee, based on TextRank implementation <a href="https://github.com/summanlp/textrank">summanlp/textrank</a>.</b>
+      </div>
+    </div>
+  </div>
+
+<script>
+  var cy = cytoscape({
+    container: document.getElementById('cy'), // container to render in
+
+    elements: [ // list of graph elements to start with
+      
+      { // node a
+        data: {
+          id: 'n0',
+          label: 'P 1 S 1',
+          paragraph: '1',
+          sentence: '1',
+          score: '0.3820',
+          transformed_score: '46.42',
+          name: 'Former Vice President Joseph R. Biden Jr. announced Thursday that he would seek the Democratic nomination to challenge President Trump in 2020, marshaling his experience and global stature in a bid to lead a party increasingly defined by a younger generation that might be skeptical of his age and ideological moderation.'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'n1',
+          label: 'P 3 S 1',
+          paragraph: '3',
+          sentence: '1',
+          score: '0.3968',
+          transformed_score: '50.00',
+          name: 'Mr. Biden, 76, is set to offer himself as a levelheaded leader for a country wracked by political conflict, a rationale he believes could attract a broad cross-section of voters who want to move on from Mr. Trump.'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'n2',
+          label: 'P 5 S 1',
+          paragraph: '5',
+          sentence: '1',
+          score: '0.3580',
+          transformed_score: '41.17',
+          name: 'In a three-and-a-half minute video laying out his reasons for running, Mr. Biden chose not to talk about policy issues or his biography but instead began by recalling the white supremacist march through Charlottesville, Va., in 2017 and a counterprotest, and Mr. Trump’s comment that there were “very fine people on both sides.'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'n3',
+          label: 'P 5 S 3',
+          paragraph: '5',
+          sentence: '3',
+          score: '0.3843',
+          transformed_score: '46.96',
+          name: 'In that moment, Mr. Biden said, “I knew the threat to our nation was unlike any I’d ever seen in my lifetime.'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'n4',
+          label: 'P 7 S 1',
+          paragraph: '7',
+          sentence: '1',
+          score: '0.3845',
+          transformed_score: '47.02',
+          name: '“We are in the battle for the soul of this nation,” Mr. Biden said.'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'n5',
+          label: 'P 7 S 3',
+          paragraph: '7',
+          sentence: '3',
+          score: '0.3622',
+          transformed_score: '42.07',
+          name: 'I believe history will look back on four years of this president and all he embraces as an aberrant moment in time.'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'n6',
+          label: 'P 7 S 4',
+          paragraph: '7',
+          sentence: '4',
+          score: '0.3765',
+          transformed_score: '45.17',
+          name: 'But if we give Donald Trump eight years in the White House, he will forever and fundamentally alter the character of this nation, who we are, and I cannot stand by and watch that happen.”'
+        }
+      },
+      
+      
+      { // edge ab
+        data: { id: 'n0_n1', source: 'n0', target: 'n1', weight: '0.7729901' }
+      },
+      
+      { // edge ab
+        data: { id: 'n0_n2', source: 'n0', target: 'n2', weight: '0.5442364' }
+      },
+      
+      { // edge ab
+        data: { id: 'n0_n3', source: 'n0', target: 'n3', weight: '0.5492673' }
+      },
+      
+      { // edge ab
+        data: { id: 'n0_n4', source: 'n0', target: 'n4', weight: '0.5371822' }
+      },
+      
+      { // edge ab
+        data: { id: 'n0_n5', source: 'n0', target: 'n5', weight: '0.55368346' }
+      },
+      
+      { // edge ab
+        data: { id: 'n0_n6', source: 'n0', target: 'n6', weight: '0.60592103' }
+      },
+      
+      { // edge ab
+        data: { id: 'n1_n2', source: 'n1', target: 'n2', weight: '0.6664613' }
+      },
+      
+      { // edge ab
+        data: { id: 'n1_n3', source: 'n1', target: 'n3', weight: '0.5627284' }
+      },
+      
+      { // edge ab
+        data: { id: 'n1_n4', source: 'n1', target: 'n4', weight: '0.56489575' }
+      },
+      
+      { // edge ab
+        data: { id: 'n1_n5', source: 'n1', target: 'n5', weight: '0.47941327' }
+      },
+      
+      { // edge ab
+        data: { id: 'n1_n6', source: 'n1', target: 'n6', weight: '0.6749713' }
+      },
+      
+      { // edge ab
+        data: { id: 'n2_n3', source: 'n2', target: 'n3', weight: '0.58624166' }
+      },
+      
+      { // edge ab
+        data: { id: 'n2_n4', source: 'n2', target: 'n4', weight: '0.5446275' }
+      },
+      
+      { // edge ab
+        data: { id: 'n2_n5', source: 'n2', target: 'n5', weight: '0.44956666' }
+      },
+      
+      { // edge ab
+        data: { id: 'n2_n6', source: 'n2', target: 'n6', weight: '0.514878' }
+      },
+      
+      { // edge ab
+        data: { id: 'n3_n4', source: 'n3', target: 'n4', weight: '0.751407' }
+      },
+      
+      { // edge ab
+        data: { id: 'n3_n5', source: 'n3', target: 'n5', weight: '0.62366176' }
+      },
+      
+      { // edge ab
+        data: { id: 'n3_n6', source: 'n3', target: 'n6', weight: '0.5130912' }
+      },
+      
+      { // edge ab
+        data: { id: 'n4_n5', source: 'n4', target: 'n5', weight: '0.62041265' }
+      },
+      
+      { // edge ab
+        data: { id: 'n4_n6', source: 'n4', target: 'n6', weight: '0.57108545' }
+      },
+      
+      { // edge ab
+        data: { id: 'n5_n6', source: 'n5', target: 'n6', weight: '0.6242602' }
+      },
+      
+    ],
+
+    style: [ // the stylesheet for the graph
+      {
+        selector: 'node',
+        style: {
+          'background-color': '#666',
+          'label': 'data(label)',
+          'width': 'data(transformed_score)',
+          'height': 'data(transformed_score)'
+        }
+      },
+
+      {
+        selector: 'edge',
+        style: {
+          'width': 'data(weight)',
+          'line-color': '#ccc'
+        }
+      }
+    ],
+
+    layout: {
+      name: 'concentric',
+      fit: true, // whether to fit the viewport to the graph
+      padding: 10, // the padding on fit
+      startAngle: 3 / 2 * Math.PI, // where nodes start in radians
+      sweep: undefined, // how many radians should be between the first and last node (defaults to full circle)
+      clockwise: true, // whether the layout should go clockwise (true) or counterclockwise/anticlockwise (false)
+      equidistant: false, // whether levels have an equal radial distance betwen them, may cause bounding box overflow
+      minNodeSpacing: 30, // min spacing between outside of nodes (used for radius adjustment)
+      boundingBox: undefined, // constrain layout bounds; { x1, y1, x2, y2 } or { x1, y1, w, h }
+      avoidOverlap: true, // prevents node overlap, may overflow boundingBox if not enough space
+      nodeDimensionsIncludeLabels: false, // Excludes the label when calculating node bounding boxes for the layout algorithm
+      height: undefined, // height of layout area (overrides container height)
+      width: undefined, // width of layout area (overrides container width)
+      spacingFactor: 2, // Applies a multiplicative factor (>0) to expand or compress the overall area that the nodes take up
+    }
+  });
+  cy.zoomingEnabled(false);
+
+  cy.on('tap', 'node', function (evt) {
+      console.log(evt.target.data());
+      var data = evt.target.data();
+      document.getElementById('tip').innerHTML = (
+        "<b>Paragraph " + data['paragraph'] + " Sentence "+ data['sentence'] + "</b><br/>" +
+        "Score: " + data['score'] + " Adjusted: " + data['transformed_score'] + "<br/>" +
+        data["name"]
+      );
+  });
+</script>
+
+<script>
+  var cyWord = cytoscape({
+    container: document.getElementById('cy-word'), // container to render in
+
+    elements: [ // list of graph elements to start with
+      
+      { // node a
+        data: {
+          id: 'w0',
+          label: 'vice',
+          score: '0.0992',
+          transformed_score: '2.94'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w1',
+          label: 'presid',
+          score: '0.3581',
+          transformed_score: '11.50'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w2',
+          label: 'joseph',
+          score: '0.0818',
+          transformed_score: '2.57'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w3',
+          label: 'r',
+          score: '0.0315',
+          transformed_score: '1.74'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w4',
+          label: 'biden',
+          score: '0.3466',
+          transformed_score: '11.02'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w5',
+          label: 'jr',
+          score: '0.3758',
+          transformed_score: '12.24'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w6',
+          label: 'announc',
+          score: '0.5395',
+          transformed_score: '20.00'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w7',
+          label: 'thursday',
+          score: '0.2989',
+          transformed_score: '9.12'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w10',
+          label: 'challeng',
+          score: '0.0992',
+          transformed_score: '2.94'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w11',
+          label: 'trump',
+          score: '0.2515',
+          transformed_score: '7.37'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w12',
+          label: 'global',
+          score: '0.0000',
+          transformed_score: '1.48'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w13',
+          label: 'statur',
+          score: '0.0000',
+          transformed_score: '1.48'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w15',
+          label: 'increas',
+          score: '0.0000',
+          transformed_score: '1.48'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w16',
+          label: 'defin',
+          score: '0.0000',
+          transformed_score: '1.48'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w19',
+          label: 'ideolog',
+          score: '0.0708',
+          transformed_score: '2.36'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w20',
+          label: 'moder',
+          score: '0.1278',
+          transformed_score: '3.61'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w21',
+          label: 'mr',
+          score: '0.2671',
+          transformed_score: '7.93'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w36',
+          label: 'run',
+          score: '0.0493',
+          transformed_score: '1.99'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w37',
+          label: 'chose',
+          score: '0.0768',
+          transformed_score: '2.47'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w49',
+          label: 'moment',
+          score: '0.1278',
+          transformed_score: '3.61'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w50',
+          label: 'said',
+          score: '0.0768',
+          transformed_score: '2.47'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w51',
+          label: 'nation',
+          score: '0.0493',
+          transformed_score: '1.99'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w53',
+          label: 'aberr',
+          score: '0.0708',
+          transformed_score: '2.36'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w54',
+          label: 'donald',
+          score: '0.0929',
+          transformed_score: '2.80'
+        }
+      },
+      
+      
+      { // edge ab
+        data: { id: 'w0_w1', source: 'w0', target: 'w1' }
+      },
+      
+      { // edge ab
+        data: { id: 'w1_w2', source: 'w1', target: 'w2' }
+      },
+      
+      { // edge ab
+        data: { id: 'w1_w10', source: 'w1', target: 'w10' }
+      },
+      
+      { // edge ab
+        data: { id: 'w1_w11', source: 'w1', target: 'w11' }
+      },
+      
+      { // edge ab
+        data: { id: 'w2_w3', source: 'w2', target: 'w3' }
+      },
+      
+      { // edge ab
+        data: { id: 'w3_w4', source: 'w3', target: 'w4' }
+      },
+      
+      { // edge ab
+        data: { id: 'w4_w5', source: 'w4', target: 'w5' }
+      },
+      
+      { // edge ab
+        data: { id: 'w4_w21', source: 'w4', target: 'w21' }
+      },
+      
+      { // edge ab
+        data: { id: 'w4_w37', source: 'w4', target: 'w37' }
+      },
+      
+      { // edge ab
+        data: { id: 'w4_w50', source: 'w4', target: 'w50' }
+      },
+      
+      { // edge ab
+        data: { id: 'w5_w6', source: 'w5', target: 'w6' }
+      },
+      
+      { // edge ab
+        data: { id: 'w6_w7', source: 'w6', target: 'w7' }
+      },
+      
+      { // edge ab
+        data: { id: 'w11_w21', source: 'w11', target: 'w21' }
+      },
+      
+      { // edge ab
+        data: { id: 'w11_w54', source: 'w11', target: 'w54' }
+      },
+      
+      { // edge ab
+        data: { id: 'w12_w13', source: 'w12', target: 'w13' }
+      },
+      
+      { // edge ab
+        data: { id: 'w15_w16', source: 'w15', target: 'w16' }
+      },
+      
+      { // edge ab
+        data: { id: 'w19_w20', source: 'w19', target: 'w20' }
+      },
+      
+      { // edge ab
+        data: { id: 'w20_w21', source: 'w20', target: 'w21' }
+      },
+      
+      { // edge ab
+        data: { id: 'w21_w36', source: 'w21', target: 'w36' }
+      },
+      
+      { // edge ab
+        data: { id: 'w21_w49', source: 'w21', target: 'w49' }
+      },
+      
+      { // edge ab
+        data: { id: 'w21_w51', source: 'w21', target: 'w51' }
+      },
+      
+      { // edge ab
+        data: { id: 'w49_w53', source: 'w49', target: 'w53' }
+      },
+      
+    ],
+
+    style: [ // the stylesheet for the graph
+      {
+        selector: 'node',
+        style: {
+          'background-color': '#666',
+          'label': 'data(label)',
+          'width': 'data(transformed_score)',
+          'height': 'data(transformed_score)'
+        }
+      },
+
+      {
+        selector: 'edge',
+        style: {
+          'width': 1.25,
+          'line-color': '#ccc'
+        }
+      }
+    ],
+
+    layout: {
+      name: 'concentric',
+      fit: true, // whether to fit the viewport to the graph
+      padding: 10, // the padding on fit
+      startAngle: 3 / 2 * Math.PI, // where nodes start in radians
+      sweep: undefined, // how many radians should be between the first and last node (defaults to full circle)
+      clockwise: true, // whether the layout should go clockwise (true) or counterclockwise/anticlockwise (false)
+      equidistant: false, // whether levels have an equal radial distance betwen them, may cause bounding box overflow
+      minNodeSpacing: 10, // min spacing between outside of nodes (used for radius adjustment)
+      boundingBox: undefined, // constrain layout bounds; { x1, y1, x2, y2 } or { x1, y1, w, h }
+      avoidOverlap: true, // prevents node overlap, may overflow boundingBox if not enough space
+      nodeDimensionsIncludeLabels: false, // Excludes the label when calculating node bounding boxes for the layout algorithm
+      height: undefined, // height of layout area (overrides container height)
+      width: undefined, // width of layout area (overrides container width)
+      spacingFactor: 2.5, // Applies a multiplicative factor (>0) to expand or compress the overall area that the nodes take up
+    }
+  });
+  cyWord.zoomingEnabled(false);
+  cyWord.on('tap', 'node', function (evt) {
+      console.log(evt.target.data());
+      var data = evt.target.data();
+      document.getElementById('word-info').innerHTML = (
+        "Word: <b>" + data['label'] + "</b> " +
+        "Score: <b>" + data['score'] + "</b> Adjusted: <b>" + data['transformed_score'] + "</b>"
+      );
+  });
+</script>
+
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+</body>
+</html>
