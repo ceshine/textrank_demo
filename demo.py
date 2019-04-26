@@ -49,7 +49,7 @@ def find_node_in_texts(node_text, sentences, lang):
                     "%.4f" % sent.score, "%.2f" % sent.transformed_score]
             else:
                 return [
-                    sent.text + "<br/><br/>Tokens: " + sent.token,
+                    sent.text + "<br/><br/>Tokens: " + str(sent.token),
                     sent.paragraph, sent.index, "%.4f" % sent.score,
                     "%.2f" % sent.transformed_score]
     return ["", -1, -1, -1]

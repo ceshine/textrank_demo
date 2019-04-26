@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+  <title>Demo Page for TextRank Algorithm</title>
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.css">
+
+  <!-- Javascript
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.2.22/cytoscape.js"></script>
+
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="icon" type="image/png" href="static/images/favicon.png">
+  <style>
+      #cy {
+          height: 500px;
+          top: 0px;
+          left: 0px;
+      }
+      #cy-word {
+          height: 750px;
+          top: 0px;
+          left: 0px;
+      }
+      #tip {
+        margin-top: 100px;
+      }
+  </style>
+
+</head>
+<body>
+  <!-- Primary Page Layout
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <div class="container">
+    <div class="row" style="margin-top: 10%">
+      <div class="two-third column"><h1>Simple TextRank Demo</h1></div>
+    </div>
+    <div class="row">
+      <div class="eight columns" style="padding-top: 2%">
+        <h4>Text Source</h4>
+        <form action="/" method="POST">
+            <textarea class="u-full-width" placeholder="Paste article here..." id="exampleMessage" name="text" style="height:400px">天皇、皇后両陛下は26日午前、憲政記念館（東京・千代田）を訪れ、内閣府主催の第13回「みどりの式典」に出席された。30日に退位を控え、天皇陛下の皇居外での公務は今回が最後。30年余にわたる在位中、皇后さまと共に望ましい象徴像を追い求められてきた陛下にとって節目となる。
+
+会場近くの沿道には大勢の人々が両陛下の姿を一目見ようと集まった。式典に先立ち、陛下の在位30年に対する祝意として出席者から拍手が送られると、両陛下は笑顔を見せ、立ち上がって頭を下げられた。
+
+式典では植物研究や緑化推進などの分野で功績のあった個人や団体が表彰された。両陛下は式典後のレセプションにも出席し、受賞者らと和やかに懇談された。
+
+宮内庁によると、両陛下は27日以降は皇居で静かに過ごし、30日夕に皇居・宮殿で行われる「退位礼正殿の儀」に備えられる。</textarea>
+            <div class="row">
+              <div class="five columns">
+                <label for="metricInput">Similarity Metric</label>
+                <select class="u-full-width" name="metricInput" id="metricInput">
+                  <option value="textrank" >Textrank Original</option>
+                  <option value="use-base"  >USE Base</option>
+                  <option value="use-large" >USE Large</option>
+                  <option value="use-xling" selected>USE Xling</option>
+                </select>
+              </div>
+              <div class="four columns">
+                # of sentences to highlight: <input class="u-full-width" type="text" name="n_sentences" value="2">
+              </div>
+              <div class="three columns">
+                # of keywords: <input class="u-full-width" type="text" name="n_keywords" value="5">
+              </div>
+            </div>
+            <input class="button-primary" type="submit" value="Submit">
+        </form>
+      </div>
+      <div class="four columns" style="padding-top: 2%">
+        <h4>Statistics</h4>
+        <ul>
+        
+          <li># of Sentence Nodes: 8</li>
+        
+          <li># of Sentence Edges: 28</li>
+        
+          <li>Max Edge Weight: 0.7550</li>
+        
+          <li>Min Edge Weight: 0.0609</li>
+        
+          <li>Max Node Score: 0.4215</li>
+        
+          <li>Min Node Score: 0.2504</li>
+        
+        </ul>
+        <h4>Keywords</h4>
+        <ol>
+        
+          <li>陛下 0.50</li>
+        
+          <li>式典 0.26</li>
+        
+          <li>皇居 0.20</li>
+        
+          <li>さ 0.20</li>
+        
+          <li>出席 0.19</li>
+        
+        </ol>
+      </div>
+    </div>
+    <div class="row">
+      <div class="twelve columns"style="padding-top: 2%">
+          <h4>Results</h4>
+          
+          <p>
+            
+              <span style="background-color: rgba(255, 255, 75, 1.0);">天皇、皇后両陛下は26日午前、憲政記念館(東京・千代田)を訪れ、内閣府主催の第13回「みどりの式典」に出席された。</span>
+            
+              <span style="background-color: rgba(255, 255, 75, 0);">30日に退位を控え、天皇陛下の皇居外での公務は今回が最後。</span>
+            
+              <span style="background-color: rgba(255, 255, 75, 0);">30年余にわたる在位中、皇后さまと共に望ましい象徴像を追い求められてきた陛下にとって節目となる。</span>
+            
+          </p>
+          
+          <p>
+            
+              <span style="background-color: rgba(255, 255, 75, 0);">会場近くの沿道には大勢の人々が両陛下の姿を一目見ようと集まった。</span>
+            
+              <span style="background-color: rgba(255, 255, 75, 0);">式典に先立ち、陛下の在位30年に対する祝意として出席者から拍手が送られると、両陛下は笑顔を見せ、立ち上がって頭を下げられた。</span>
+            
+          </p>
+          
+          <p>
+            
+              <span style="background-color: rgba(255, 255, 75, 0);">式典では植物研究や緑化推進などの分野で功績のあった個人や団体が表彰された。</span>
+            
+              <span style="background-color: rgba(255, 255, 75, 0);">両陛下は式典後のレセプションにも出席し、受賞者らと和やかに懇談された。</span>
+            
+          </p>
+          
+          <p>
+            
+              <span style="background-color: rgba(255, 255, 75, 0.8702);">宮内庁によると、両陛下は27日以降は皇居で静かに過ごし、30日夕に皇居・宮殿で行われる「退位礼正殿の儀」に備えられる。</span>
+            
+          </p>
+          
+      </div>
+    </div>
+    <div class="row" id="network">
+      <div class="nine columns" style="padding-top: 2%">
+          <h4>Sentence Network</h4>
+          <div id="cy"></div>
+      </div>
+      <div class="three columns" id="tip">
+        Click on a node to show details.
+      </div>
+    </div>
+    <div class="row" id="word-network">
+      <div class="twelve columns" style="padding-top: 2%">
+          <h4>Word Network</h4>
+          <div id="word-info">Click on a node to show word information.</div>
+          <div id="cy-word"></div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="twelve columns" style="padding-top: 2%; padding-bottom: 5%;">
+        <b>Built by CeShine Lee, based on TextRank implementation <a href="https://github.com/summanlp/textrank">summanlp/textrank</a>.</b>
+      </div>
+    </div>
+  </div>
+
+<script>
+  var cy = cytoscape({
+    container: document.getElementById('cy'), // container to render in
+
+    elements: [ // list of graph elements to start with
+      
+      { // node a
+        data: {
+          id: 'n0',
+          label: 'P 1 S 1',
+          paragraph: '1',
+          sentence: '1',
+          score: '0.4215',
+          transformed_score: '50.00',
+          name: '天皇、皇后両陛下は26日午前、憲政記念館(東京・千代田)を訪れ、内閣府主催の第13回「みどりの式典」に出席された。<br/><br/>Tokens: 0'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'n1',
+          label: 'P 1 S 2',
+          paragraph: '1',
+          sentence: '2',
+          score: '0.2856',
+          transformed_score: '14.58',
+          name: '30日に退位を控え、天皇陛下の皇居外での公務は今回が最後。<br/><br/>Tokens: 1'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'n2',
+          label: 'P 1 S 3',
+          paragraph: '1',
+          sentence: '3',
+          score: '0.3511',
+          transformed_score: '28.68',
+          name: '30年余にわたる在位中、皇后さまと共に望ましい象徴像を追い求められてきた陛下にとって節目となる。<br/><br/>Tokens: 2'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'n3',
+          label: 'P 2 S 1',
+          paragraph: '2',
+          sentence: '1',
+          score: '0.3156',
+          transformed_score: '20.47',
+          name: '会場近くの沿道には大勢の人々が両陛下の姿を一目見ようと集まった。<br/><br/>Tokens: 3'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'n4',
+          label: 'P 2 S 2',
+          paragraph: '2',
+          sentence: '2',
+          score: '0.3805',
+          transformed_score: '36.69',
+          name: '式典に先立ち、陛下の在位30年に対する祝意として出席者から拍手が送られると、両陛下は笑顔を見せ、立ち上がって頭を下げられた。<br/><br/>Tokens: 4'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'n5',
+          label: 'P 3 S 1',
+          paragraph: '3',
+          sentence: '1',
+          score: '0.2504',
+          transformed_score: '8.72',
+          name: '式典では植物研究や緑化推進などの分野で功績のあった個人や団体が表彰された。<br/><br/>Tokens: 5'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'n6',
+          label: 'P 3 S 2',
+          paragraph: '3',
+          sentence: '2',
+          score: '0.3851',
+          transformed_score: '38.05',
+          name: '両陛下は式典後のレセプションにも出席し、受賞者らと和やかに懇談された。<br/><br/>Tokens: 6'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'n7',
+          label: 'P 4 S 1',
+          paragraph: '4',
+          sentence: '1',
+          score: '0.4026',
+          transformed_score: '43.51',
+          name: '宮内庁によると、両陛下は27日以降は皇居で静かに過ごし、30日夕に皇居・宮殿で行われる「退位礼正殿の儀」に備えられる。<br/><br/>Tokens: 7'
+        }
+      },
+      
+      
+      { // edge ab
+        data: { id: 'n0_n1', source: 'n0', target: 'n1', weight: '0.56447417' }
+      },
+      
+      { // edge ab
+        data: { id: 'n0_n2', source: 'n0', target: 'n2', weight: '0.5629357' }
+      },
+      
+      { // edge ab
+        data: { id: 'n0_n3', source: 'n0', target: 'n3', weight: '0.37210196' }
+      },
+      
+      { // edge ab
+        data: { id: 'n0_n4', source: 'n0', target: 'n4', weight: '0.48549646' }
+      },
+      
+      { // edge ab
+        data: { id: 'n0_n5', source: 'n0', target: 'n5', weight: '0.25749022' }
+      },
+      
+      { // edge ab
+        data: { id: 'n0_n6', source: 'n0', target: 'n6', weight: '0.4746976' }
+      },
+      
+      { // edge ab
+        data: { id: 'n0_n7', source: 'n0', target: 'n7', weight: '0.75503004' }
+      },
+      
+      { // edge ab
+        data: { id: 'n1_n2', source: 'n1', target: 'n2', weight: '0.45854223' }
+      },
+      
+      { // edge ab
+        data: { id: 'n1_n3', source: 'n1', target: 'n3', weight: '0.13495728' }
+      },
+      
+      { // edge ab
+        data: { id: 'n1_n4', source: 'n1', target: 'n4', weight: '0.22303809' }
+      },
+      
+      { // edge ab
+        data: { id: 'n1_n5', source: 'n1', target: 'n5', weight: '0.060894236' }
+      },
+      
+      { // edge ab
+        data: { id: 'n1_n6', source: 'n1', target: 'n6', weight: '0.22438668' }
+      },
+      
+      { // edge ab
+        data: { id: 'n1_n7', source: 'n1', target: 'n7', weight: '0.56024367' }
+      },
+      
+      { // edge ab
+        data: { id: 'n2_n3', source: 'n2', target: 'n3', weight: '0.30415493' }
+      },
+      
+      { // edge ab
+        data: { id: 'n2_n4', source: 'n2', target: 'n4', weight: '0.4593903' }
+      },
+      
+      { // edge ab
+        data: { id: 'n2_n5', source: 'n2', target: 'n5', weight: '0.24142542' }
+      },
+      
+      { // edge ab
+        data: { id: 'n2_n6', source: 'n2', target: 'n6', weight: '0.3280574' }
+      },
+      
+      { // edge ab
+        data: { id: 'n2_n7', source: 'n2', target: 'n7', weight: '0.4639108' }
+      },
+      
+      { // edge ab
+        data: { id: 'n3_n4', source: 'n3', target: 'n4', weight: '0.5430149' }
+      },
+      
+      { // edge ab
+        data: { id: 'n3_n5', source: 'n3', target: 'n5', weight: '0.22804403' }
+      },
+      
+      { // edge ab
+        data: { id: 'n3_n6', source: 'n3', target: 'n6', weight: '0.51917446' }
+      },
+      
+      { // edge ab
+        data: { id: 'n3_n7', source: 'n3', target: 'n7', weight: '0.39339077' }
+      },
+      
+      { // edge ab
+        data: { id: 'n4_n5', source: 'n4', target: 'n5', weight: '0.39437643' }
+      },
+      
+      { // edge ab
+        data: { id: 'n4_n6', source: 'n4', target: 'n6', weight: '0.5606335' }
+      },
+      
+      { // edge ab
+        data: { id: 'n4_n7', source: 'n4', target: 'n7', weight: '0.41875735' }
+      },
+      
+      { // edge ab
+        data: { id: 'n5_n6', source: 'n5', target: 'n6', weight: '0.5044731' }
+      },
+      
+      { // edge ab
+        data: { id: 'n5_n7', source: 'n5', target: 'n7', weight: '0.19793233' }
+      },
+      
+      { // edge ab
+        data: { id: 'n6_n7', source: 'n6', target: 'n7', weight: '0.510994' }
+      },
+      
+    ],
+
+    style: [ // the stylesheet for the graph
+      {
+        selector: 'node',
+        style: {
+          'background-color': '#666',
+          'label': 'data(label)',
+          'width': 'data(transformed_score)',
+          'height': 'data(transformed_score)'
+        }
+      },
+
+      {
+        selector: 'edge',
+        style: {
+          'width': 'data(weight)',
+          'line-color': '#ccc'
+        }
+      }
+    ],
+
+    layout: {
+      name: 'concentric',
+      fit: true, // whether to fit the viewport to the graph
+      padding: 10, // the padding on fit
+      startAngle: 3 / 2 * Math.PI, // where nodes start in radians
+      sweep: undefined, // how many radians should be between the first and last node (defaults to full circle)
+      clockwise: true, // whether the layout should go clockwise (true) or counterclockwise/anticlockwise (false)
+      equidistant: false, // whether levels have an equal radial distance betwen them, may cause bounding box overflow
+      minNodeSpacing: 30, // min spacing between outside of nodes (used for radius adjustment)
+      boundingBox: undefined, // constrain layout bounds; { x1, y1, x2, y2 } or { x1, y1, w, h }
+      avoidOverlap: true, // prevents node overlap, may overflow boundingBox if not enough space
+      nodeDimensionsIncludeLabels: false, // Excludes the label when calculating node bounding boxes for the layout algorithm
+      height: undefined, // height of layout area (overrides container height)
+      width: undefined, // width of layout area (overrides container width)
+      spacingFactor: 2, // Applies a multiplicative factor (>0) to expand or compress the overall area that the nodes take up
+    }
+  });
+  cy.zoomingEnabled(false);
+
+  cy.on('tap', 'node', function (evt) {
+      console.log(evt.target.data());
+      var data = evt.target.data();
+      document.getElementById('tip').innerHTML = (
+        "<b>Paragraph " + data['paragraph'] + " Sentence "+ data['sentence'] + "</b><br/>" +
+        "Score: " + data['score'] + " Adjusted: " + data['transformed_score'] + "<br/>" +
+        data["name"]
+      );
+  });
+</script>
+
+<script>
+  var cyWord = cytoscape({
+    container: document.getElementById('cy-word'), // container to render in
+
+    elements: [ // list of graph elements to start with
+      
+      { // node a
+        data: {
+          id: 'w0',
+          label: '天皇',
+          score: '0.1014',
+          transformed_score: '2.63'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w1',
+          label: '皇后',
+          score: '0.1316',
+          transformed_score: '3.46'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w2',
+          label: '陛下',
+          score: '0.5027',
+          transformed_score: '20.00'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w6',
+          label: '東京',
+          score: '0.0942',
+          transformed_score: '2.45'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w7',
+          label: '千代田',
+          score: '0.0953',
+          transformed_score: '2.47'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w8',
+          label: '訪れ',
+          score: '0.0954',
+          transformed_score: '2.47'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w9',
+          label: '内閣',
+          score: '0.0945',
+          transformed_score: '2.45'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w10',
+          label: '主催',
+          score: '0.0923',
+          transformed_score: '2.40'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w13',
+          label: '式典',
+          score: '0.2631',
+          transformed_score: '8.13'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w14',
+          label: '出席',
+          score: '0.1948',
+          transformed_score: '5.50'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w15',
+          label: 'さ',
+          score: '0.1975',
+          transformed_score: '5.60'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w19',
+          label: '皇居',
+          score: '0.2006',
+          transformed_score: '5.71'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w23',
+          label: '年',
+          score: '0.1417',
+          transformed_score: '3.76'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w26',
+          label: '在位',
+          score: '0.1315',
+          transformed_score: '3.45'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w35',
+          label: '会場',
+          score: '0.0929',
+          transformed_score: '2.41'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w36',
+          label: '近く',
+          score: '0.0929',
+          transformed_score: '2.41'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w56',
+          label: '緑化',
+          score: '0.0923',
+          transformed_score: '2.40'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w57',
+          label: '推進',
+          score: '0.0945',
+          transformed_score: '2.45'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w58',
+          label: '分野',
+          score: '0.0955',
+          transformed_score: '2.48'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w59',
+          label: '功績',
+          score: '0.0955',
+          transformed_score: '2.48'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w60',
+          label: 'あっ',
+          score: '0.0945',
+          transformed_score: '2.45'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w61',
+          label: '個人',
+          score: '0.0923',
+          transformed_score: '2.40'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w75',
+          label: '正殿',
+          score: '0.0980',
+          transformed_score: '2.54'
+        }
+      },
+      
+      { // node a
+        data: {
+          id: 'w76',
+          label: '儀',
+          score: '0.1079',
+          transformed_score: '2.79'
+        }
+      },
+      
+      
+      { // edge ab
+        data: { id: 'w0_w1', source: 'w0', target: 'w1' }
+      },
+      
+      { // edge ab
+        data: { id: 'w0_w2', source: 'w0', target: 'w2' }
+      },
+      
+      { // edge ab
+        data: { id: 'w1_w2', source: 'w1', target: 'w2' }
+      },
+      
+      { // edge ab
+        data: { id: 'w1_w26', source: 'w1', target: 'w26' }
+      },
+      
+      { // edge ab
+        data: { id: 'w2_w13', source: 'w2', target: 'w13' }
+      },
+      
+      { // edge ab
+        data: { id: 'w2_w15', source: 'w2', target: 'w15' }
+      },
+      
+      { // edge ab
+        data: { id: 'w2_w19', source: 'w2', target: 'w19' }
+      },
+      
+      { // edge ab
+        data: { id: 'w2_w26', source: 'w2', target: 'w26' }
+      },
+      
+      { // edge ab
+        data: { id: 'w6_w7', source: 'w6', target: 'w7' }
+      },
+      
+      { // edge ab
+        data: { id: 'w7_w8', source: 'w7', target: 'w8' }
+      },
+      
+      { // edge ab
+        data: { id: 'w8_w9', source: 'w8', target: 'w9' }
+      },
+      
+      { // edge ab
+        data: { id: 'w9_w10', source: 'w9', target: 'w10' }
+      },
+      
+      { // edge ab
+        data: { id: 'w13_w14', source: 'w13', target: 'w14' }
+      },
+      
+      { // edge ab
+        data: { id: 'w14_w15', source: 'w14', target: 'w15' }
+      },
+      
+      { // edge ab
+        data: { id: 'w23_w26', source: 'w23', target: 'w26' }
+      },
+      
+      { // edge ab
+        data: { id: 'w35_w36', source: 'w35', target: 'w36' }
+      },
+      
+      { // edge ab
+        data: { id: 'w56_w57', source: 'w56', target: 'w57' }
+      },
+      
+      { // edge ab
+        data: { id: 'w57_w58', source: 'w57', target: 'w58' }
+      },
+      
+      { // edge ab
+        data: { id: 'w58_w59', source: 'w58', target: 'w59' }
+      },
+      
+      { // edge ab
+        data: { id: 'w59_w60', source: 'w59', target: 'w60' }
+      },
+      
+      { // edge ab
+        data: { id: 'w60_w61', source: 'w60', target: 'w61' }
+      },
+      
+      { // edge ab
+        data: { id: 'w75_w76', source: 'w75', target: 'w76' }
+      },
+      
+    ],
+
+    style: [ // the stylesheet for the graph
+      {
+        selector: 'node',
+        style: {
+          'background-color': '#666',
+          'label': 'data(label)',
+          'width': 'data(transformed_score)',
+          'height': 'data(transformed_score)'
+        }
+      },
+
+      {
+        selector: 'edge',
+        style: {
+          'width': 1.25,
+          'line-color': '#ccc'
+        }
+      }
+    ],
+
+    layout: {
+      name: 'concentric',
+      fit: true, // whether to fit the viewport to the graph
+      padding: 10, // the padding on fit
+      startAngle: 3 / 2 * Math.PI, // where nodes start in radians
+      sweep: undefined, // how many radians should be between the first and last node (defaults to full circle)
+      clockwise: true, // whether the layout should go clockwise (true) or counterclockwise/anticlockwise (false)
+      equidistant: false, // whether levels have an equal radial distance betwen them, may cause bounding box overflow
+      minNodeSpacing: 10, // min spacing between outside of nodes (used for radius adjustment)
+      boundingBox: undefined, // constrain layout bounds; { x1, y1, x2, y2 } or { x1, y1, w, h }
+      avoidOverlap: true, // prevents node overlap, may overflow boundingBox if not enough space
+      nodeDimensionsIncludeLabels: false, // Excludes the label when calculating node bounding boxes for the layout algorithm
+      height: undefined, // height of layout area (overrides container height)
+      width: undefined, // width of layout area (overrides container width)
+      spacingFactor: 2.5, // Applies a multiplicative factor (>0) to expand or compress the overall area that the nodes take up
+    }
+  });
+  cyWord.zoomingEnabled(false);
+  cyWord.on('tap', 'node', function (evt) {
+      console.log(evt.target.data());
+      var data = evt.target.data();
+      document.getElementById('word-info').innerHTML = (
+        "Word: <b>" + data['label'] + "</b> " +
+        "Score: <b>" + data['score'] + "</b> Adjusted: <b>" + data['transformed_score'] + "</b>"
+      );
+  });
+</script>
+
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+</body>
+</html>
