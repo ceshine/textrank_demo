@@ -8,6 +8,8 @@ A simple website demonstrating TextRank's extractive summarization capability. C
 
 - Similarity metrics using the Universal Sentence Encoders from Tensorflow Hub has been added. Use the "Similarity Metric" dropdown menu to switch between models.
 
+- All USE models supports English, but **only the `Xling` variant supports Japanese and Chinese**.
+
 - A Dockerfile `[Dockerfile.cpu](Dockerfile.cpu)` has been added for easier reproduction. Because the "base" model only supports CPU version of Tensorflow, at this moment we don't provide a GPU version of the Dockerfile.
 
 - Use spacy to segment sentence for English texts.
