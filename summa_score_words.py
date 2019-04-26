@@ -13,13 +13,13 @@ import summa.graph
 
 # Optional Dependencies
 try:
-    from text_cleaning_zh import clean_and_cut_sentences as zh_clean_and_cut_words
+    from text_cleaning_zh import clean_and_cut_words as zh_clean_and_cut_words
     ZH_SUPPORT = True
 except ImportError:
     ZH_SUPPORT = False
 
 try:
-    from text_cleaning_ja import clean_and_cut_sentences as ja_clean_and_cut_words
+    from text_cleaning_ja import clean_and_cut_words as ja_clean_and_cut_words
     JA_SUPPORT = True
 except ImportError:
     JA_SUPPORT = False
