@@ -1,7 +1,7 @@
 https://github.com/ceshine/textrank/archive/20190425.zip
 spacy==2.0.18
 opencc-python-reimplemented
-starlette==0.11.4
+# starlette==0.11.4
 jinja2
 uvicorn
 aiofiles==0.4.0
@@ -11,3 +11,4 @@ tensorflow==1.13.1
 tensorflow-hub==0.4.0
 tf-sentencepiece
 nagisa
+fastapi>=0.20.0
