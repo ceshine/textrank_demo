@@ -29,7 +29,7 @@ def summarize(text, additional_stopwords=None):
     if lang == "en":
         paragraphs = text.split("\n")
         sentences = []
-        paragraph_index = 1
+        paragraph_index = 0
         for paragraph in paragraphs:
             # Gets a list of processed sentences.
             if paragraph:
@@ -37,10 +37,11 @@ def summarize(text, additional_stopwords=None):
                     paragraph, additional_stopwords)
                 # tmp = _clean_text_by_sentences(
                 #     paragraph, "english")
-                for sent in tmp:
-                    sent.paragraph = paragraph_index
-                sentences += tmp
-                paragraph_index += 1
+                if tmp:
+                    for sent in tmp:
+                        sent.paragraph = paragraph_index
+                    sentences += tmp
+                    paragraph_index += 1
     elif lang == "zh" or lang == "ko":  # zh-Hant sometimes got misclassified into ko
         if not ZH_SUPPORT:
             raise ImportError("Missing dependencies for Chinese support.")

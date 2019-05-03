@@ -58,25 +58,21 @@ def cosine_similarity(similarity_matrix, id_1, id_2):
     return similarity_matrix[id_1, id_2]
 
 
-def attach_sentence_embeddings(sentences, model_name, batch_size=32):
-    model = get_model(model_name)
+def attach_sentence_embeddings(session, sentences, model, batch_size=32):
     # don't use extremely short sentences
     sentences_subset = [x for x in sentences if len(x.text) > 5]
     sentence_embeddings_tmp = []
-    with tf.Session() as session:
-        session.run([tf.global_variables_initializer(),
-                     tf.tables_initializer()])
-        for i in range(0, len(sentences_subset), batch_size):
-            sentence_embeddings_tmp.append(
-                session.run(
-                    model["sentence_emb"],
-                    feed_dict={
-                        model["sentence_input"]: [
-                            x.text for x in sentences_subset[i:(i+batch_size)]
-                        ]
-                    }
-                )
+    for i in range(0, len(sentences_subset), batch_size):
+        sentence_embeddings_tmp.append(
+            session.run(
+                model["sentence_emb"],
+                feed_dict={
+                    model["sentence_input"]: [
+                        x.text for x in sentences_subset[i:(i+batch_size)]
+                    ]
+                }
             )
+        )
     sentence_embeddings_subset = np.concatenate(
         sentence_embeddings_tmp, axis=0)
     sentence_embeddings = np.zeros(
@@ -92,22 +88,35 @@ def attach_sentence_embeddings(sentences, model_name, batch_size=32):
 
 
 def summarize(text, model_name="large", additional_stopwords=None):
+    model = get_model(model_name)
+    with tf.Session() as session:
+        session.run([tf.global_variables_initializer(),
+                     tf.tables_initializer()])
+        # Make the graph read-only
+        tf.get_default_graph().finalize()
+        return summarize_with_model(text, session, model, model_name, additional_stopwords)
+
+
+def summarize_with_model(text, session, model, model_name, additional_stopwords):
     if not isinstance(text, str):
         raise ValueError("Text parameter must be a Unicode object (str)!")
     lang = detect(text)[:2]
     if lang == "en":
         paragraphs = text.split("\n")
         sentences = []
-        for i, paragraph in enumerate(paragraphs):
+        paragraph_index = 0
+        for paragraph in paragraphs:
             # Gets a list of processed sentences.
             if paragraph:
                 tmp = _clean_text_by_sentences(
                     paragraph, additional_stopwords)
-                for j, sent in enumerate(tmp):
-                    sent.paragraph = i
-                    # Hacky way to overwrite token
-                    sent.token = len(sentences) + j
-                sentences += tmp
+                if tmp:
+                    for j, sent in enumerate(tmp):
+                        sent.paragraph = paragraph_index
+                        # Hacky way to overwrite token
+                        sent.token = len(sentences) + j
+                    sentences += tmp
+                    paragraph_index += 1
     elif lang == "zh" or lang == "ko":  # zh-Hant sometimes got misclassified into ko
         if model_name != "xling":
             raise ValueError("Only 'xling' model supports zh.")
@@ -132,7 +141,7 @@ def summarize(text, model_name="large", additional_stopwords=None):
     # print([sentence.token for sentence in sentences if sentence.token])
     # Creates the graph and calculates the similarity coefficient for every pair of nodes.
     similarities = attach_sentence_embeddings(
-        sentences, batch_size=32, model_name=model_name)
+        session, sentences, model, batch_size=32)
     graph = _build_graph([x.token for x in sentences])
     _set_graph_edge_weights(graph, partial(cosine_similarity, similarities))
 
