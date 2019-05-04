@@ -2,6 +2,7 @@
 import os
 import logging
 from functools import partial
+from typing import List
 
 import numpy as np
 import tensorflow as tf
@@ -12,6 +13,7 @@ from text_cleaning_en import clean_text_by_sentences as _clean_text_by_sentences
 from summa.commons import build_graph as _build_graph
 from summa.commons import remove_unreachable_nodes as _remove_unreachable_nodes
 from summa.summarizer import _set_graph_edge_weights, _add_scores_to_sentences
+from summa.syntactic_unit import SyntacticUnit
 
 # Optional Dependencies
 try:
@@ -19,12 +21,6 @@ try:
     import tf_sentencepiece
 except ImportError:
     pass
-
-try:
-    from text_cleaning_zh import clean_and_cut_sentences as zh_clean_and_cut_sentences
-    ZH_SUPPORT = True
-except ImportError:
-    ZH_SUPPORT = False
 
 try:
     from text_cleaning_ja import clean_and_cut_sentences as ja_clean_and_cut_sentences
@@ -41,6 +37,43 @@ MODELS = {
     # base does not work with GPU
     "base": "https://tfhub.dev/google/universal-sentence-encoder/2"
 }
+
+
+def cut_sentences_by_rule(text: str, sentence_delimiters: str = "。！？；"):
+    paragraph = 0
+    index = 0
+    buffer = []
+    results: List[SyntacticUnit] = []
+    delimiters = set(sentence_delimiters)
+    for paragraph_text in text.split("\n"):
+        for char in paragraph_text:
+            buffer.append(char)
+            if char in delimiters:
+                results.append(
+                    SyntacticUnit(
+                        text="".join(buffer),
+                        token=len(results),
+                        index=index,
+                        paragraph=paragraph
+                    )
+                )
+                buffer = []
+                index += 1
+        if len(buffer) > 0:
+            results.append(
+                SyntacticUnit(
+                    text="".join(buffer),
+                    token=len(results),
+                    index=index,
+                    paragraph=paragraph
+                )
+            )
+            buffer = []
+        elif index == 0:
+            continue
+        paragraph += 1
+        index = 0
+    return results
 
 
 def get_model(model_name="large"):
@@ -120,12 +153,7 @@ def summarize_with_model(text, session, model, model_name, additional_stopwords)
     elif lang == "zh" or lang == "ko":  # zh-Hant sometimes got misclassified into ko
         if model_name != "xling":
             raise ValueError("Only 'xling' model supports zh.")
-        if not ZH_SUPPORT:
-            raise ImportError("Missing dependencies for Chinese support.")
-        sentences = zh_clean_and_cut_sentences(text)
-        for i, sent in enumerate(sentences):
-            # Hacky way to overwrite token
-            sent.token = i
+        sentences = cut_sentences_by_rule(text)
     elif lang == "ja":
         if model_name != "xling":
             raise ValueError("Only 'xling' model supports ja.")
