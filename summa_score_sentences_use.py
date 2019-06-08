@@ -20,7 +20,7 @@ from text_cleaning_en import clean_text_by_sentences as _clean_text_by_sentences
 try:
     # required by "xling" model
     import tf_sentencepiece
-except ImportError:
+except (ImportError, tf.errors.NotFoundError):
     pass
 
 try:
