@@ -3,7 +3,8 @@
 LASER is a library to calculate and use multilingual sentence embeddings.
 
 **NEWS**
-* The code to perform bitext mining is [**now available**](tasks/bucc)
+* 2019/03/18 switch to BSD license
+* 2019/02/13 The code to perform bitext mining is [**now available**](tasks/bucc)
 
 **CURRENT VERSION:**
 * We now provide an encoder which was trained on [**93 languages**](#supported-languages), written in 23 different alphabets [6].
@@ -29,6 +30,7 @@ be found in [6], together with an extensive experimental evaluation.
 * Python 3.6
 * [PyTorch 1.0](http://pytorch.org/)
 * [NumPy](http://www.numpy.org/), tested with 1.15.4
+* [Cython](https://pypi.org/project/Cython/), needed by Python wrapper of FastBPE, tested with 0.29.6
 * [Faiss](https://github.com/facebookresearch/faiss), for fast similarity search and bitext mining
 * [transliterate 1.10.2](https://pypi.org/project/transliterate), only used for Greek (`pip install transliterate`)
 * [jieba 0.39](https://pypi.org/project/jieba/), Chinese segmenter (`pip install jieba`)
@@ -62,7 +64,7 @@ with code to reproduce our results (in the directory "tasks").
 
 ## License
 
-This source code is licensed under the license found in the [`LICENSE`](LICENSE) file in the root directory of this source tree.
+LASER is BSD-licensed, as found in the [`LICENSE`](LICENSE) file in the root directory of this source tree.
 
 ## Supported languages
 
