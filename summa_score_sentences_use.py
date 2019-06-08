@@ -9,11 +9,12 @@ import tensorflow as tf
 import tensorflow_hub as hub
 from langdetect import detect
 from summa.pagerank_weighted import pagerank_weighted_scipy as _pagerank
-from text_cleaning_en import clean_text_by_sentences as _clean_text_by_sentences
 from summa.commons import build_graph as _build_graph
 from summa.commons import remove_unreachable_nodes as _remove_unreachable_nodes
 from summa.summarizer import _set_graph_edge_weights, _add_scores_to_sentences
 from summa.syntactic_unit import SyntacticUnit
+
+from text_cleaning_en import clean_text_by_sentences as _clean_text_by_sentences
 
 # Optional Dependencies
 try:

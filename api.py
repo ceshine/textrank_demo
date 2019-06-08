@@ -8,6 +8,7 @@ from starlette.middleware.cors import CORSMiddleware
 
 from summa_score_sentences import summarize as summarize_textrank
 from summa_score_sentences_xling import summarize_xling
+from summa_score_sentences_laser import summarize as summarize_laser
 
 
 class HighlightRequest(BaseModel):
@@ -63,6 +64,8 @@ def read_item(highlight_request: HighlightRequest):
         sentences, _, _ = summarize_textrank(highlight_request.text)
     elif highlight_request.model == "use-xling":
         sentences, _, _ = summarize_xling(highlight_request.text)
+    elif highlight_request.model == "laser":
+        sentences, _, _ = summarize_laser(highlight_request.text)
     else:
         return HighlightResults(
             success=False,
