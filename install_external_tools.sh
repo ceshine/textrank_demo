@@ -1,8 +1,8 @@
 #!/bin/bash
-# Copyright (c) 2017-present, Facebook, Inc.
+# Copyright (c) Facebook, Inc. and its affiliates.
 # All rights reserved.
 #
-# This source code is licensed under the license found in the
+# This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 #
 # LASER  Language-Agnostic SEntence Representations
@@ -106,10 +106,11 @@ InstallFastBPE () {
     mv fastBPE-master fastBPE
     cd fastBPE
     echo " - compiling"
-    g++ -std=c++11 -pthread -O3 fast.cc -o fast
+    g++ -std=c++11 -pthread -O3 fastBPE/main.cc -IfastBPE -o fast
     if [ $? -eq 1 ] ; then
       echo "ERROR: compilation failed, please install manually"; exit
     fi
+    python setup.py install
   fi
 }
 
@@ -148,7 +149,6 @@ InstallMecab () {
     fi
   fi
 }
-
 
 
 ###################################################################

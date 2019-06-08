@@ -1,0 +1,49 @@
+# CPU environment
+FROM ubuntu:18.04
+
+LABEL maintainer="ceshine@ceshine.net"
+
+ARG CONDA_PYTHON_VERSION=3
+ARG USERNAME=docker
+ARG USERID=1000
+ARG CONDA_DIR=/opt/conda
+
+# Instal basic utilities
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends git wget unzip bzip2 sudo build-essential ca-certificates && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install miniconda
+ENV PATH $CONDA_DIR/bin:$PATH
+RUN wget --quiet https://repo.continuum.io/miniconda/Miniconda$CONDA_PYTHON_VERSION-latest-Linux-x86_64.sh -O /tmp/miniconda.sh && \
+    echo 'export PATH=$CONDA_DIR/bin:$PATH' > /etc/profile.d/conda.sh && \
+    /bin/bash /tmp/miniconda.sh -b -p $CONDA_DIR && \
+    rm -rf /tmp/*
+
+# Create the user
+RUN useradd --create-home -s /bin/bash --no-user-group -u $USERID $USERNAME && \
+    chown $USERNAME $CONDA_DIR -R && \
+    adduser $USERNAME sudo && \
+    echo "$USERNAME ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+
+USER $USERNAME
+WORKDIR /home/$USERNAME
+
+RUN conda install pytorch-cpu torchvision-cpu faiss-cpu -c pytorch && \
+    conda install cython jupyter && \
+    conda clean -tipsy
+RUN pip install jieba beautifulsoup4 && rm -rf ~/.cache/pip
+
+ENV LASER=/src
+COPY . /src
+RUN sudo chown -R $USERNAME /src
+WORKDIR /src
+
+# RUN conda install -y cython jupyter && \
+#     conda clean -tipsy
+RUN bash ./install_models.sh
+RUN bash ./install_external_tools.sh
+
+RUN echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc && \
+    echo "conda activate base" >> ~/.bashrc

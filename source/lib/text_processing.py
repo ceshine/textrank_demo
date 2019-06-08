@@ -1,8 +1,8 @@
 #!/usr/bin/python
-# Copyright (c) 2017-present, Facebook, Inc.
+# Copyright (c) Facebook, Inc. and its affiliates.
 # All rights reserved.
 #
-# This source code is licensed under the license found in the
+# This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 #
 # LASER  Language-Agnostic SEntence Representations
@@ -15,9 +15,9 @@
 # Helper functions for tokenization and BPE
 
 import os
-import pdb
 import sys
 import tempfile
+import fastBPE
 import numpy as np
 from subprocess import run, check_output, DEVNULL
 
@@ -42,7 +42,7 @@ MECAB = LASER + '/tools-external/mecab'
 
 ###############################################################################
 #
-# Tokenize a line
+# Tokenize a line of text
 #
 ###############################################################################
 
@@ -107,30 +107,23 @@ def Token(inp_fname, out_fname, lang='en',
 
 ###############################################################################
 #
-# Apply FastBPE for one line
-# This implementation is highly suboptimal since we have to spawn a new
-# process and load the BPE codes for each line !!
+# Apply FastBPE on one line of text
 #
 ###############################################################################
 
-def BPEfastApplyLine(line, bpe_codes):
+def BPEfastLoad(line, bpe_codes):
     bpe_vocab = bpe_codes.replace('fcodes', 'fvocab')
-    if not os.path.isfile(bpe_vocab):
-        print(' - fast BPE: focab file not found {}'.format(bpe_vocab))
-        bpe_vocab = ''
-    with tempfile.TemporaryDirectory() as tmpdir:
-        ifn = os.path.join(tmpdir, 'tok')
-        ofn = os.path.join(tmpdir, 'bpe')
-        with open(ifn, 'w') as f:
-            f.write('{}\n'.format(line))
-        run(FASTBPE + ' applybpe ' + ofn + ' ' + ifn
-            + ' ' + bpe_codes + ' ' + bpe_vocab,
-            shell=True, stderr=DEVNULL)
-        with open(ofn, 'r') as f:
-            bpe = f.readlines()
-        assert len(bpe) == 1, 'ERROR: unexpected BPE output'
-        return bpe[0]
+    return fastBPE.fastBPE(bpe_codes, bpe_vocab)
 
+def BPEfastApplyLine(line, bpe):
+    return bpe.apply([line])[0]
+
+
+###############################################################################
+#
+# Apply FastBPE on a whole file
+#
+###############################################################################
 
 def BPEfastApply(inp_fname, out_fname, bpe_codes,
                  verbose=False, over_write=False):
