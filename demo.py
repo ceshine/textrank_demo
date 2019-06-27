@@ -10,9 +10,16 @@ import uvicorn
 import summa.graph
 
 from summa_score_sentences_use import summarize as summarize_use
-from summa_score_sentences_laser import summarize as summarize_laser
 from summa_score_sentences import summarize as summarize_textrank
 from summa_score_words import keywords as _keywords
+
+try:
+    from summa_score_sentences_laser import summarize as summarize_laser
+    LASER_ENABLED = True
+except Exception as e:
+    print("Failed to import LASER:")
+    print(type(e), str(e))
+    LASER_ENABLED = False
 
 
 app = Starlette(debug=True)
@@ -130,6 +137,8 @@ async def homepage(request):
             sentences, graph, lang = summarize_use(
                 values['text'], model_name=values['metricInput'][4:])
         elif values['metricInput'].startswith("laser"):
+            if LASER_ENABLED is False:
+                raise ValueError("LASER not enabled.")
             sentences, graph, lang = summarize_laser(values['text'])
         else:
             sentences, graph, lang = summarize_textrank(

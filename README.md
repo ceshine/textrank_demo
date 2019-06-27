@@ -4,27 +4,65 @@ A simple website demonstrating TextRank's extractive summarization capability. C
 
 ## Major updates
 
+### June 2019
+
+- Add [LASER sentence encoder](https://github.com/facebookresearch/LASER)(multi-lingual). LASER has rather complicated installation steps, so a dedicated Dockerfile([Dockerfile.laser_cpu](Dockerfile.laser_cpu)) is provided.
+- `Xling` variant of Universal Sentence Encoder stops working due to some problem of `tf-sentencepiece` package despite the same version specification in `requirements.txt`. It has happened before and fixing it was really annoying. Since Google has dropped support for this integration, it's unlikely to get better (see the quote below). I decided to drop the official support of `Xling`. It's still on the demo page as an encoder option, but expect it to fail.
+
+> We will be no longer supported direct integration with Tensorflow. Tensorflow users are suggested to adopt the new Tokzenization ops published as part of TF.Text. Those ops will soon support running pre-trained SentencePiece models.  ([source](https://github.com/google/sentencepiece#tensorflow-module))
+
 ### April 2019
 
 - Similarity metrics using the Universal Sentence Encoders from Tensorflow Hub has been added. Use the "Similarity Metric" dropdown menu to switch between models.
 
 - All USE models supports English, but **only the `Xling` variant supports Japanese and Chinese**.
 
-- A Dockerfile `[Dockerfile.cpu](Dockerfile.cpu)` has been added for easier reproduction. Because the "base" model only supports CPU version of Tensorflow, at this moment we don't provide a GPU version of the Dockerfile.
+- A Dockerfile([Dockerfile.cpu](Dockerfile.cpu)) has been added for easier reproduction. Because the "base" model only supports CPU version of Tensorflow, at this moment we don't provide a GPU version of the Dockerfile.
 
 - Use spacy to segment sentence for English texts.
 
 ## Usage
 
+WARNING: At the current state, the backend does almost to none input value validation. Please do not anticipate it to have production quality.
+
+### Docker (Recommended)
+
+Two options for you:
+
+1. Dockerfile.cpu: No LASER support. Classic textrank, USE-base and USE-large work.
+2. Dockerfile.laser_cpu: Classic textrank, USE-base, USE-large, and LASER work.
+
+(USE-xling probably won't work in both cases due to reason described in the June 2019 update log.)
+
+Build the docker image using:
+
+```bash
+docker build -t <name> -f <Dockerfile.cpu or Dockerfile.laser_cpu> .
+```
+
+Start a container using:
+
+```bash
+docker run -u 1000:1000 --rm -ti -p 8000:8000 -e TFHUB_CACHE_DIR=/some/path/tf_hub_cache/ -e BAIDU_APP_ID=<ID> -e BAIDU_APP_KEY=<key> -e BAIDU_SECRET_KEY=<secret> -v /some/path:/some/path <name>
+```
+
+If you're not feeding Chinese text to the server, you can skip BAIDU related environment variables. Setting `TFHUB_CACHE_DIR` is recommended to save the time by avoiding downloading the models every time you start a new container.
+
+Visit `http://localhost:8000` in your browser.
+
+### Local Python Environment
+
 * This project uses Starlette (a lightweight ASGI framework/toolkit), so **Python 3.6+** is required.
 
-* Install dependencies by running `pip install -r requirements`.
+* Install dependencies by running `pip install -r requirements.txt`.
 
 * Start the demo server by running `python demo.py`, and then visit `http://localhost:8000` in your browser.
 
 (Depending on your Python setup, you might need to replace `pip` with `pip3`, and `python` with `python3`.)
 
-WARNING: At the current state, the backend does almost to none input value validation. Please do not anticipate it to have production quality.
+### API server
+
+There's a very simple script([api.py](api.py)) to create a api server using [fastapi](https://github.com/tiangolo/fastapi). It might be a good starting point for you to expand upon (that's what I did to create a private textrank api server).
 
 ## Languages supported
 

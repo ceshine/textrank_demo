@@ -9,7 +9,7 @@ python-multipart
 langdetect
 tensorflow==1.13.1
 tensorflow-hub==0.4.0
-tf-sentencepiece
+tf-sentencepiece==0.1.8
 nagisa
 fastapi>=0.20.0
 scikit-learn>=0.20.2
