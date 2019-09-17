@@ -9,7 +9,6 @@ from starlette.templating import Jinja2Templates
 import uvicorn
 import summa.graph
 
-from summa_score_sentences_use import summarize as summarize_use
 from summa_score_sentences import summarize as summarize_textrank
 from summa_score_words import keywords as _keywords
 
@@ -20,6 +19,14 @@ except Exception as e:
     print("Failed to import LASER:")
     print(type(e), str(e))
     LASER_ENABLED = False
+
+try:
+    from summa_score_sentences_use import summarize as summarize_use
+    USE_ENABLED = True
+except Exception as e:
+    print("Failed to import USE:")
+    print(type(e), str(e))
+    USE_ENABLED = False
 
 
 app = Starlette(debug=True)
@@ -134,6 +141,8 @@ async def homepage(request):
         values = await request.form()
         print("POST params:", values)
         if values['metricInput'].startswith("use-"):
+            if USE_ENABLED is False:
+                raise ValueError("USE not enabled.")
             sentences, graph, lang = summarize_use(
                 values['text'], model_name=values['metricInput'][4:])
         elif values['metricInput'].startswith("laser"):
@@ -144,7 +153,6 @@ async def homepage(request):
             sentences, graph, lang = summarize_textrank(
                 values['text'])
         print("Language dected:", lang)
-        extra_info = []
         keywords, lemma2words, word_graph, pagerank_scores = _keywords(
             values['text'])
         if lang == "en":

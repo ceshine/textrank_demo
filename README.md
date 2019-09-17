@@ -4,12 +4,16 @@ A simple website demonstrating TextRank's extractive summarization capability. C
 
 ## Major updates
 
+### September 2019
+
+- I managed to find the exact setup that **makes Universal Sentence Encoder work** and put it in [Dockerfile.use_cpu](Dockerfile.use_cpu). The main issue was that `tf-sentencepiece` doesn't work with Python 3.7. Downgrading to Python 3.6 solves the problem for me.
+
 ### June 2019
 
 - Add [LASER sentence encoder](https://github.com/facebookresearch/LASER)(multi-lingual). LASER has rather complicated installation steps, so a dedicated Dockerfile([Dockerfile.laser_cpu](Dockerfile.laser_cpu)) is provided.
 - `Xling` variant of Universal Sentence Encoder stops working due to some problem of `tf-sentencepiece` package despite the same version specification in `requirements.txt`. It has happened before and fixing it was really annoying. Since Google has dropped support for this integration, it's unlikely to get better (see the quote below). I decided to drop the official support of `Xling`. It's still on the demo page as an encoder option, but expect it to fail.
 
-> We will be no longer supported direct integration with Tensorflow. Tensorflow users are suggested to adopt the new Tokzenization ops published as part of TF.Text. Those ops will soon support running pre-trained SentencePiece models.  ([source](https://github.com/google/sentencepiece#tensorflow-module))
+> We will be no longer supported direct integration with Tensorflow. Tensorflow users are suggested to adopt the new Tokzenization ops published as part of TF.Text. Those ops will soon support running pre-trained SentencePiece models. ([source](https://github.com/google/sentencepiece#tensorflow-module))
 
 ### April 2019
 
@@ -52,11 +56,11 @@ Visit `http://localhost:8000` in your browser.
 
 ### Local Python Environment
 
-* This project uses Starlette (a lightweight ASGI framework/toolkit), so **Python 3.6+** is required.
+- This project uses Starlette (a lightweight ASGI framework/toolkit), so **Python 3.6+** is required.
 
-* Install dependencies by running `pip install -r requirements.txt`.
+- Install dependencies by running `pip install -r requirements.txt`.
 
-* Start the demo server by running `python demo.py`, and then visit `http://localhost:8000` in your browser.
+- Start the demo server by running `python demo.py`, and then visit `http://localhost:8000` in your browser.
 
 (Depending on your Python setup, you might need to replace `pip` with `pip3`, and `python` with `python3`.)
 
@@ -84,9 +88,9 @@ Demo: **[A static snapshot](https://publicb2.ceshine.net/file/ceshine-public/mis
 
 This project uses [Baidu's free NLP API](https://cloud.baidu.com/product/nlp) to do word segmentation and POS tagging. You need to create an account there, install the Python SDK, and set the following environment variables:
 
-* BAIDU_APP_ID
-* BAIDU_APP_KEY
-* BAIDU_SECRET_KEY
+- BAIDU_APP_ID
+- BAIDU_APP_KEY
+- BAIDU_SECRET_KEY
 
 You can of course use other offline NLP tools instead. Please refer to `test_text_cleaning_zh.py` for information on the data structures expected by the main function.
 
@@ -97,7 +101,6 @@ Traditional Chinese will be converted to Simplified Chinese due to the restricti
 Demo: **[A static snapshot](https://publicb2.ceshine.net/file/ceshine-public/misc/textrank_demo_ja.html) with an example from a news article.**
 
 It uses [nagisa](https://github.com/taishi-i/nagisa) to do word segmentation and POS tagging. There are some Japanese peculiarities that make it a bit tricky, and I had to add a few stopwords go get more reasonable results for demo. Obviously there is much room of improvement here.
-
 
 ## Snapshots
 
