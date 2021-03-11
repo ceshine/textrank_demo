@@ -63,10 +63,9 @@
                 <label for="metricInput">Similarity Metric</label>
                 <select class="u-full-width" name="metricInput" id="metricInput">
                   <option value="textrank" {% if metricInput == 'textrank' %}selected{% endif %}>Textrank Original</option>
-                  <option value="use-base" {% if metricInput == 'use-base' %}selected{% endif %} >USE Base</option>
+                  {# <option value="use-base" {% if metricInput == 'use-base' %}selected{% endif %} >USE Base</option>
                   <option value="use-large" {% if metricInput == 'use-large' %}selected{% endif %}>USE Large</option>
-                  <option value="use-xling" {% if metricInput == 'use-xling' %}selected{% endif %}>USE Xling</option>
-                  <option value="laser" {% if metricInput == 'laser' %}selected{% endif %}>LASER</option>
+                  <option value="use-xling" {% if metricInput == 'use-xling' %}selected{% endif %}>USE Xling</option> #}
                 </select>
               </div>
               <div class="four columns">

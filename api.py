@@ -8,7 +8,6 @@ from starlette.middleware.cors import CORSMiddleware
 
 from summa_score_sentences import summarize as summarize_textrank
 from summa_score_sentences_xling import summarize_xling
-from summa_score_sentences_laser import summarize as summarize_laser
 
 
 class HighlightRequest(BaseModel):

@@ -1,3 +1,4 @@
+import os
 import math
 from typing import List, Dict
 
@@ -12,13 +13,7 @@ import summa.graph
 from summa_score_sentences import summarize as summarize_textrank
 from summa_score_words import keywords as _keywords
 
-try:
-    from summa_score_sentences_laser import summarize as summarize_laser
-    LASER_ENABLED = True
-except Exception as e:
-    print("Failed to import LASER:")
-    print(type(e), str(e))
-    LASER_ENABLED = False
+LASER_ENABLED = False
 
 try:
     from summa_score_sentences_use import summarize as summarize_use
@@ -216,4 +211,4 @@ async def homepage(request):
     return response
 
 if __name__ == '__main__':
-    uvicorn.run(app, host='0.0.0.0', port=8000)
+    uvicorn.run(app, host='0.0.0.0', port=os.environ.get("PORT", 8888))
