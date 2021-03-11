@@ -55,7 +55,7 @@
     </div>
     <div class="row">
       <div class="eight columns" style="padding-top: 2%">
-        <h4>Text Source</h4>
+        <h4>Text Source <span style="font-size: 1.5rem">(English/中文/日本語)<span></h4>
         <form action="/" method="POST">
             <textarea class="u-full-width" placeholder="Paste article here..." id="exampleMessage" name="text" style="height:400px">{{ text }}</textarea>
             <div class="row">
@@ -124,7 +124,7 @@
     </div>
     <div class="row">
       <div class="twelve columns" style="padding-top: 2%; padding-bottom: 5%;">
-        <b>Built by CeShine Lee, based on TextRank implementation <a href="https://github.com/summanlp/textrank">summanlp/textrank</a>.</b>
+        <b>Built by <a href="https://blog.ceshine.net">CeShine Lee</a>, based on TextRank implementation <a href="https://github.com/summanlp/textrank">summanlp/textrank</a>.</b>
       </div>
     </div>
   </div>
@@ -143,7 +143,7 @@
           sentence: '{{ node_mapping[i][2] + 1}}',
           score: '{{ node_mapping[i][3] }}',
           transformed_score: '{{ node_mapping[i][4] }}',
-          name: '{{node_mapping[i][0].strip() | safe}}'
+          name: '{{node_mapping[i][0].strip().replace("\'", "\\\'") | safe}}'
         }
       },
       {% endfor %}
