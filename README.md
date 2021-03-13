@@ -4,6 +4,11 @@ A simple website demonstrating TextRank's extractive summarization capability. C
 
 ## Major updates
 
+### March 2021
+
+- I deployed a version of this demo that has USE and LASER removed on [textrank-demo.veritable.pw](http://textrank-demo.veritable.pw). Now you don't have to build a Docker image locally to try this demo.
+- The code behind this version is at the [heroku](https://github.com/ceshine/textrank_demo/tree/heroku) branch. As the name suggests, I use a Heroku free dyno to run the server, so **the first request might take some time to be served**.
+
 ### September 2019
 
 - I managed to find the exact setup that **makes Universal Sentence Encoder work** and put it in [Dockerfile.use_cpu](Dockerfile.use_cpu). The main issue was that `tf-sentencepiece` doesn't work with Python 3.7. Downgrading to Python 3.6 solves the problem for me.
