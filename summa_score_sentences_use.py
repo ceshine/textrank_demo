@@ -165,7 +165,7 @@ def summarize_with_model(text, session, model, model_name, additional_stopwords)
             # Hacky way to overwrite token
             sent.token = i
     else:
-        return ["Language not suppored! (supported languages: en, zh, ja)"], None, lang
+        return ["Language not supported! (supported languages: en, zh, ja)"], None, lang
 
     # print([sentence.token for sentence in sentences if sentence.token])
     # Creates the graph and calculates the similarity coefficient for every pair of nodes.
