@@ -1,9 +1,9 @@
-FROM ubuntu:18.04
+FROM ubuntu:20.04 AS build
 
 LABEL maintainer="ceshine@ceshine.net"
 
 ARG CONDA_PYTHON_VERSION=3
-ARG PYTHON_VERSION=3.6
+ARG PYTHON_VERSION=3.7
 ARG USERNAME=docker
 ARG USERID=1000
 ARG CONDA_DIR=/opt/conda
@@ -31,26 +31,55 @@ RUN useradd --create-home -s /bin/bash --no-user-group -u $USERID $USERNAME && \
     echo "$USERNAME ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 USER $USERNAME
-WORKDIR /home/$USERNAME
 
-RUN conda install python=$PYTHON_VERSION cython jupyter && \
-    conda clean -tipsy
+RUN conda install python=$PYTHON_VERSION && conda clean -ay
 
 ARG PIP_MIRROR=https://pypi.python.org/simple
 
 COPY requirements.txt /src/requirements.txt
 WORKDIR /src
 
-RUN pip install -i $PIP_MIRROR -U pip && rm -rf ~/.cache/pip
-RUN pip install -i $PIP_MIRROR -U pypandoc && rm -rf ~/.cache/pip
-RUN pip install -i $PIP_MIRROR -r requirements.txt && rm -rf ~/.cache/pip
-RUN pip install -i $PIP_MIRROR tensorflow tensorflow-hub sentencepiece tf-sentencepiece && rm -rf ~/.cache/pip
+RUN pip install --no-cache-dir -i $PIP_MIRROR -U pip
+RUN pip install --no-cache-dir -i $PIP_MIRROR -U pypandoc
+RUN pip install --no-cache-dir -i $PIP_MIRROR -r requirements.txt
+RUN pip install --no-cache-dir -i $PIP_MIRROR tensorflow tensorflow-hub sentencepiece tf-sentencepiece
 
-COPY . /src
+COPY ./baidu_sdk /src/baidu_sdk
 RUN sudo chown -R $USERNAME /src
 
 # Install Baidu SDK
 RUN cd baidu_sdk && pip install .
+
+# Runtime image
+FROM ubuntu:20.04
+
+ARG CONDA_DIR=/opt/conda
+ARG USERNAME=docker
+ARG USERID=1000
+
+# Instal basic utilities
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends git wget unzip bzip2 sudo && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+ENV PATH $CONDA_DIR/bin:$PATH
+ENV PATH=$PATH:$HOME/bin
+
+RUN mkdir -p /opt/conda/
+
+# Create the user
+RUN useradd --create-home -s /bin/bash --no-user-group -u $USERID $USERNAME && \
+    chown $USERNAME $CONDA_DIR -R && \
+    adduser $USERNAME sudo && \
+    echo "$USERNAME ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+USER $USERNAME
+WORKDIR /src
+
+COPY --chown=1000 --from=build /opt/conda/. $CONDA_DIR
+
+COPY . /src
+RUN sudo chown -R $USERNAME /src
 
 # Install Spacy model
 RUN python -m spacy download en_core_web_sm
