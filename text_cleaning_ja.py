@@ -1,6 +1,5 @@
-import re
 from collections import namedtuple
-from typing import List, Sequence, Dict, Any, Tuple
+from typing import List, Sequence
 
 import nagisa
 

@@ -55,14 +55,17 @@
     </div>
     <div class="row">
       <div class="eight columns" style="padding-top: 2%">
-        <h4>Text Source <span style="font-size: 1.5rem">(English/中文/日本語)<span></h4>
+        <h4>Source Article <span style="font-size: 1.5rem">(English/中文/日本語)<span></h4>
         <form action="/" method="POST">
             <textarea class="u-full-width" placeholder="Paste article here..." id="exampleMessage" name="text" style="height:400px">{{ text }}</textarea>
             <div class="row">
               <div class="five columns">
-                <label for="metricInput">Similarity Metric</label>
+                <label for="metricInput">Similarity Model</label>
                 <select class="u-full-width" name="metricInput" id="metricInput">
                   <option value="textrank" {% if metricInput == 'textrank' %}selected{% endif %}>Textrank Original</option>
+                  <option value="distilbert-base-nli-stsb" {% if metricInput == 'distilbert-base-nli-stsb' %}selected{% endif %}>
+                    distilbert-base-nli-stsb (En)
+                  </option>
                   {# <option value="use-base" {% if metricInput == 'use-base' %}selected{% endif %} >USE Base</option>
                   <option value="use-large" {% if metricInput == 'use-large' %}selected{% endif %}>USE Large</option>
                   <option value="use-xling" {% if metricInput == 'use-xling' %}selected{% endif %}>USE Xling</option> #}

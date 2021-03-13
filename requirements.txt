@@ -10,3 +10,4 @@ langdetect
 nagisa
 fastapi
 scikit-learn>=0.20.2
+requests

@@ -92,3 +92,40 @@ def cut_sentences(tokens: List[Dict[str, Any]], sentence_delimiter: str,
             if token["tag"] in pos_tags and (token["item"] not in stopwords):
                 filtered.append(" ".join(token["basic_words"]))
     return results
+
+
+def cut_sentences_by_rule(text: str, sentence_delimiters: str = "。！？；"):
+    paragraph = 0
+    index = 0
+    buffer = []
+    results: List[SyntacticUnit] = []
+    delimiters = set(sentence_delimiters)
+    for paragraph_text in text.split("\n"):
+        for char in paragraph_text:
+            buffer.append(char)
+            if char in delimiters:
+                results.append(
+                    SyntacticUnit(
+                        text="".join(buffer),
+                        token=len(results),
+                        index=index,
+                        paragraph=paragraph
+                    )
+                )
+                buffer = []
+                index += 1
+        if len(buffer) > 0:
+            results.append(
+                SyntacticUnit(
+                    text="".join(buffer),
+                    token=len(results),
+                    index=index,
+                    paragraph=paragraph
+                )
+            )
+            buffer = []
+        elif index == 0:
+            continue
+        paragraph += 1
+        index = 0
+    return results

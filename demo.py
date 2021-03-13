@@ -10,18 +10,9 @@ from starlette.templating import Jinja2Templates
 import uvicorn
 import summa.graph
 
+from summa_score_sentences_embs import summarize as summarize_embs
 from summa_score_sentences import summarize as summarize_textrank
 from summa_score_words import keywords as _keywords
-
-LASER_ENABLED = False
-
-try:
-    from summa_score_sentences_use import summarize as summarize_use
-    USE_ENABLED = True
-except Exception as e:
-    print("Failed to import USE:")
-    print(type(e), str(e))
-    USE_ENABLED = False
 
 
 app = Starlette(debug=True)
@@ -135,15 +126,9 @@ async def homepage(request):
     if request.method == "POST":
         values = await request.form()
         print("POST params:", values)
-        if values['metricInput'].startswith("use-"):
-            if USE_ENABLED is False:
-                raise ValueError("USE not enabled.")
-            sentences, graph, lang = summarize_use(
-                values['text'], model_name=values['metricInput'][4:])
-        elif values['metricInput'].startswith("laser"):
-            if LASER_ENABLED is False:
-                raise ValueError("LASER not enabled.")
-            sentences, graph, lang = summarize_laser(values['text'])
+        if values['metricInput'] in ("distilbert-base-nli-stsb",):
+            sentences, graph, lang = summarize_embs(
+                values['text'], values['metricInput'])
         else:
             sentences, graph, lang = summarize_textrank(
                 values['text'])
