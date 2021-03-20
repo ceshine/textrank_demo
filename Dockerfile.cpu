@@ -12,6 +12,6 @@ RUN python -m spacy download en_core_web_sm
 # Install NewRelic
 RUN pip install --no-cache-dir newrelic
 
-EXPOSE 8000
+EXPOSE 8888
 
 CMD newrelic-admin run-program python demo.py

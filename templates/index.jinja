@@ -57,14 +57,14 @@
       <div class="eight columns" style="padding-top: 2%">
         <h4>Source Article <span style="font-size: 1.5rem">(English/中文/日本語)<span></h4>
         <form action="/" method="POST">
-            <textarea class="u-full-width" placeholder="Paste article here..." id="exampleMessage" name="text" style="height:400px">{{ text }}</textarea>
+            <textarea class="u-full-width" placeholder="Paste article here..." id="input_text" name="text" style="height:400px">{{ text }}</textarea>
             <div class="row">
               <div class="five columns">
                 <label for="metricInput">Similarity Model</label>
                 <select class="u-full-width" name="metricInput" id="metricInput">
                   <option value="textrank" {% if metricInput == 'textrank' %}selected{% endif %}>Textrank Original</option>
                   <option value="distilbert-base-nli-stsb" {% if metricInput == 'distilbert-base-nli-stsb' %}selected{% endif %}>
-                    TinyBERT_L-4_H-312_v2-distill-AllNLI (En)
+                    TinyBERT_L-4_H-312_v2 (En)
                   </option>
                   {# <option value="use-base" {% if metricInput == 'use-base' %}selected{% endif %} >USE Base</option>
                   <option value="use-large" {% if metricInput == 'use-large' %}selected{% endif %}>USE Large</option>
@@ -72,13 +72,19 @@
                 </select>
               </div>
               <div class="four columns">
-                # of sentences to highlight: <input class="u-full-width" type="text" name="n_sentences" value="{{ n_sentences }}">
+                # of sentences to highlight: <input class="u-full-width" type="text" name="n_sentences" value="{{ n_sentences }}" />
               </div>
               <div class="three columns">
-                # of keywords: <input class="u-full-width" type="text" name="n_keywords" value="{{ n_keywords }}">
+                # of keywords: <input class="u-full-width" type="text" name="n_keywords" value="{{ n_keywords }}" />
               </div>
             </div>
-            <input class="button-primary" type="submit" value="Submit">
+            <input class="button-primary" type="submit" value="Submit" />
+            <div>
+              Example Text:
+              <button type="button" onclick="fillEnglishExample()">English</button>
+              <button type="button" onclick="fillJapaneseExample()">Japanese</button>
+              <button type="button" onclick="fillChineseExample()">Chinese</button>
+            </div>
         </form>
       </div>
       <div class="four columns" style="padding-top: 2%">
@@ -130,6 +136,67 @@
       </div>
     </div>
   </div>
+
+<script>
+const englishText = `Authorities have arrested two organizers for the far-right group the Proud Boys, charging them with conspiracy in a new criminal indictment unsealed Friday. Prosecutors say the men used paramilitary gear, handheld radios and encrypted messaging applications to coordinate with other Proud Boys before and during the attack.
+
+Authorities indicted Zach Rehl, 35, of Pennsylvania and Charles Donohoe, 33, of North Carolina, and say both men are presidents of their local Proud Boys chapters. They were named as co-conspirators in a new criminal indictment that also charges two other Proud Boys leaders: Joseph Biggs, an Army veteran and self-described Proud Boys organizer who was arrested in January, and Ethan Nordean, a member of a Proud Boys leadership group known as the Elders, and also a president of his local chapter. Nordean was indicted earlier this month.
+
+Prosecutors said the four defendants participated in an encrypted chat with at least 60 other people during the attack, and some used programmed handheld radios to communicate in real time.
+
+The Proud Boys, a nationalist group self-described as "Western Chauvinists," have vocally supported former President Trump, and law enforcement and former members have said Mr. Trump emboldened their actions after he told the group to "stand back and stand by" in a September presidential debate. 
+
+With the arrests of Donohoe and Rehl, federal prosecutors have now charged at least 16 Capitol rioters who they said in court documents were associated with the Proud Boys.
+
+Prosecutors described defendants' social media posts from the fall, which indicated they believed the election was stolen from Mr. Trump.`;
+
+const japaneseText = `バイデン政権下で初めて開かれた米中外交トップ同士の会談は、同盟国と圧力を強める米国と、対等な関係に持ち込もうとする中国の思惑が衝突する展開となった。根本的な課題では双方の溝は深く、国際社会を巻き込む長期的な対立が避けられない情勢だ。
+
+「厳しく、直接的な対話になると予期していたし、実際にそうなった」
+
+　サリバン米大統領補佐官は会談後に記者団にこう語った。また、ブリンケン米国務長官は、米国が問題提起をした際の中国の反応を「防御的」とした上で「何の驚きもない」と強調した。政権高官の一人は「中国政府は時に、米国の公式見解と水面下でのメッセージは異なると考えがちだ。我々はこれを早めに打ち消し、公での言葉と同じメッセージを直接伝える必要があると考えた」と説明する。
+
+　政権の立ち位置を明確にする意味で、米側は会談で目的を達した形だ。会談に向けたバイデン政権の準備も、そのまま政権の対中戦略を映し出している。米中会談に先立ち、初の日米豪印首脳協議を開いたほか、ブリンケン氏を日韓に、オースティン国防長官を日韓印にそれぞれ派遣。特に日本とは、中国を名指しで批判する共同声明を発表し、対中での連携をアピールした。これらはすべて、アジアでの同盟関係を再構築し「強い立場」で米中会談に臨むためだった。
+
+一方で、一連の会談からは米国のこれからの課題も浮かび上がった。
+
+　日本とは対照的に、中国との関係にも配慮する韓国との共同声明には、中国に関する言及が一切なかった。インドも国境問題などを抱えつつも、対中包囲網づくりとは一定の距離を置く。中国側の楊潔篪（ヤンチエチー）共産党政治局員も米中会談の冒頭で「日韓は中国の第2、第3の貿易相手国で、ASEANは今や最大の貿易相手国だ」と経済的な結びつきを誇示して牽制（けんせい）した。
+
+　もう一つの課題は、中国に対する強い立場を確保するためにも不可欠と位置づけている、国内経済や民主主義社会の立て直しだ。`;
+
+const chineseText = `甚至在拜登政府周四与中国高级外交官举行首次面对面会谈之前，美国官员就预测会谈不会顺利。他们是对的：开场几分钟的惯常问候和讲话变成了长达一个多小时的公开的唇枪舌战，证实了预期中的这两个地缘政治对手之间的对抗基调。
+
+美国官员说，为期两天的会谈将继续进行，但立即指责中国代表团违反了这次敏感会谈的形式，该会谈旨在在两国之间的许多冲突点中试图寻找共识。
+
+中国最高外交官杨洁篪指责美国在会谈中采取“居高临下”的态度，并表示美国代表团无权指责北京侵犯人权，或就民主的优点进行说教。
+
+他一度表示，美国应该好好解决自身“根深蒂固”的问题，特别提到反对美国种族主义的“黑人的命也是命”(Black Lives Matter)运动。在开幕致辞似乎已经结束，记者起初被告知离开房间以便双方开始更深入的讨论的时候，杨洁篪指责美国在捍卫新闻自由方面缺乏一致性。
+
+“我认为世界上绝大多数国家都不会认可美国倡导的普世价值观，或美国的意见可以代表国际舆论。”杨洁篪通过翻译说。“而且那些国家不会承认少数人制定的规则将成为国际秩序的基础。”
+
+国务卿安东尼·J·布林肯(Antony J. Blinken)起初显得有些吃惊，但随后采取了更加坚定的态度。会谈一开始，他就申明了拜登政府的外交政策旨在“促进美国利益，并增强基于规则的国际秩序。”
+
+“与基于规则的秩序相对的，是一个强权即正确、赢者通吃的世界，”布林肯说。“而这对我们所有人来说，将是一个更加暴力和不稳定的世界。”
+
+但是，在杨洁篪的冗长评论之后——美国官员称其违反了将开幕词限制在两分钟之内的协议——布林肯建议在场的十几名记者留下以听取他的回应。
+
+布林肯含蓄地表示，与中方形成鲜明对比的是，美国长期以来一直公开面对自己的缺点：“没想忽略它们，假装它们不存在，也没想掩盖它们。”他还回顾了十几年前时任副总统的小约瑟夫·R·拜登(Joseph R. Biden Jr.)和时任国家副主席的习近平之间的一次会晤——两个人现在都是各自国家的领导人。
+
+布林肯说，拜登当时表示，“赌美国输从来不是一个好的选择。”他还说，“今天仍是如此。”
+
+在美方作出回应后，记者被再次要求离开，杨洁篪直接转向电视摄像机，并用英语说“等等”。然后，他再次开始了对美国政策的冗长批评。`;
+
+const fillEnglishExample = () => {
+  document.getElementById('input_text').value = englishText;
+}
+const fillJapaneseExample = () => {
+  document.getElementById('input_text').value = japaneseText;
+}
+const fillChineseExample = () => {
+  document.getElementById('input_text').value = chineseText;
+}
+</script>
+
 {% if text %}
 <script>
   var cy = cytoscape({
